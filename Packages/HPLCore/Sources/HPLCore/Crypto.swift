@@ -1,6 +1,6 @@
 import Foundation
 
-/// Portable SHA-256 (FIPS 180-4) for file dedupe; avoids a crypto dependency so the ingest core also runs on Linux.
+/// Portable SHA-256 (FIPS 180-4) for lab-file dedupe and event signatures; no crypto dependency, so it runs on Linux too.
 public enum SHA256Digest {
     private static let k: [UInt32] = [
         0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
@@ -13,7 +13,9 @@ public enum SHA256Digest {
         0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
     ]
 
-    public static func hex(_ data: Data) -> String {
+    public static func hex(_ data: Data) -> String { digest(data).map { String(format: "%02x", $0) }.joined() }
+
+    public static func digest(_ data: Data) -> [UInt8] {
         var h: [UInt32] = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19]
         var msg = [UInt8](data)
         let bitLength = UInt64(msg.count) * 8
@@ -43,8 +45,41 @@ public enum SHA256Digest {
             }
             for i in 0..<8 { h[i] = h[i] &+ v[i] }
         }
-        return h.map { String(format: "%08x", $0) }.joined()
+        return h.flatMap { word in (0..<4).reversed().map { UInt8((word >> (UInt32($0) * 8)) & 0xff) } }
     }
 
     private static func rotr(_ x: UInt32, _ n: UInt32) -> UInt32 { (x >> n) | (x << (32 - n)) }
+}
+
+/// HMAC-SHA256 (RFC 2104) for `hpl.signed_event.v1` (architecture §8.2).
+public enum HMACSHA256 {
+    public static func mac(key: [UInt8], message: Data) -> [UInt8] {
+        var k = key.count > 64 ? SHA256Digest.digest(Data(key)) : key
+        k += [UInt8](repeating: 0, count: 64 - k.count)
+        let inner = SHA256Digest.digest(Data(k.map { $0 ^ 0x36 }) + message)
+        return SHA256Digest.digest(Data(k.map { $0 ^ 0x5c } + inner))
+    }
+
+    public static func hex(key: [UInt8], message: Data) -> String { mac(key: key, message: message).map { String(format: "%02x", $0) }.joined() }
+
+    /// Constant-time comparison of two hex strings (case-insensitive), so timing doesn't leak how much of a signature matched.
+    public static func equal(_ a: String, _ b: String) -> Bool {
+        let x = Array(a.lowercased().utf8), y = Array(b.lowercased().utf8)
+        guard x.count == y.count else { return false }
+        return zip(x, y).reduce(UInt8(0)) { $0 | ($1.0 ^ $1.1) } == 0
+    }
+}
+
+/// base64url without padding (RFC 4648 §5), used in the pairing QR payload.
+public enum Base64URL {
+    public static func encode(_ bytes: [UInt8]) -> String {
+        Data(bytes).base64EncodedString().replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_")
+            .replacingOccurrences(of: "=", with: "")
+    }
+
+    public static func decode(_ s: String) -> [UInt8]? {
+        var t = s.replacingOccurrences(of: "-", with: "+").replacingOccurrences(of: "_", with: "/")
+        while t.count % 4 != 0 { t += "=" }
+        return Data(base64Encoded: t).map { [UInt8]($0) }
+    }
 }

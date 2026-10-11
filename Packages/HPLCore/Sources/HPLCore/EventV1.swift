@@ -1,11 +1,12 @@
 import Foundation
 
-/// `hpl.event.v1` envelope. Mirrors Spec/hpl.event.v1.schema.json. Signature lives in transport headers.
+/// `hpl.event.v1` envelope. Mirrors Spec/hpl.event.v1.schema.json. Authenticity comes from the `hpl.signed_event.v1`
+/// wrapper (HPLBridge `SignedEvent`); this type is only ever decoded from a verified wrapper body.
 public struct HPLEventV1: Codable, Sendable, Equatable {
     public static let specID = "hpl.event.v1"
 
     public enum EventType: Codable, Sendable, Hashable, RawRepresentable {
-        case mealStart, mealItems, mealPhoto, mealEnd, voiceNote, lifestyleEvent, ping
+        case mealStart, mealItems, mealPhoto, mealEnd, mealLogged, voiceNote, lifestyleEvent, ping
         case unknown(String)
 
         public init(rawValue: String) {
@@ -14,6 +15,7 @@ public struct HPLEventV1: Codable, Sendable, Equatable {
             case "meal.items": .mealItems
             case "meal.photo": .mealPhoto
             case "meal.end": .mealEnd
+            case "meal.logged": .mealLogged
             case "voice.note": .voiceNote
             case "lifestyle.event": .lifestyleEvent
             case "ping": .ping
@@ -27,6 +29,7 @@ public struct HPLEventV1: Codable, Sendable, Equatable {
             case .mealItems: "meal.items"
             case .mealPhoto: "meal.photo"
             case .mealEnd: "meal.end"
+            case .mealLogged: "meal.logged"
             case .voiceNote: "voice.note"
             case .lifestyleEvent: "lifestyle.event"
             case .ping: "ping"
@@ -39,9 +42,14 @@ public struct HPLEventV1: Codable, Sendable, Equatable {
     }
 
     public struct Producer: Codable, Sendable, Equatable {
+        /// Where the producer's model ran; shown next to imported meals.
+        public enum Processing: String, Codable, Sendable { case onDevice = "on_device", cloud }
         public var name: String
         public var version: String
-        public init(name: String, version: String) { self.name = name; self.version = version }
+        public var processing: Processing?
+        public init(name: String, version: String, processing: Processing? = nil) {
+            self.name = name; self.version = version; self.processing = processing
+        }
     }
 
     public var spec: String
@@ -79,6 +87,7 @@ public struct HPLEventV1: Codable, Sendable, Equatable {
         case .mealItems: .mealItems(try payload.decode(EventPayload.MealItems.self))
         case .mealPhoto: .mealPhoto(try payload.decode(EventPayload.MealPhoto.self))
         case .mealEnd: .mealEnd
+        case .mealLogged: .mealLogged(try payload.decode(EventPayload.MealItems.self))
         case .voiceNote: .voiceNote(try payload.decode(EventPayload.VoiceNote.self))
         case .lifestyleEvent: .lifestyleEvent(try payload.decode(EventPayload.LifestyleEvent.self))
         case .ping: .ping
@@ -88,7 +97,7 @@ public struct HPLEventV1: Codable, Sendable, Equatable {
 }
 
 public enum EventPayload: Sendable, Equatable {
-    case mealStart(MealStart), mealItems(MealItems), mealPhoto(MealPhoto), mealEnd
+    case mealStart(MealStart), mealItems(MealItems), mealPhoto(MealPhoto), mealEnd, mealLogged(MealItems)
     case voiceNote(VoiceNote), lifestyleEvent(LifestyleEvent), ping
 
     public struct MealStart: Codable, Sendable, Equatable {
@@ -101,10 +110,13 @@ public enum EventPayload: Sendable, Equatable {
             public var name: String
             public var portionText: String?
             public var kcalEst, proteinG, carbsG, fatG, fiberG: Double?
-            public var confidence: Double
+            public var confidence: Double?
             enum CodingKeys: String, CodingKey {
                 case name, portionText = "portion_text", kcalEst = "kcal_est", proteinG = "protein_g"
                 case carbsG = "carbs_g", fatG = "fat_g", fiberG = "fiber_g", confidence
+            }
+            public init(name: String, kcalEst: Double? = nil, proteinG: Double? = nil, confidence: Double? = nil) {
+                self.name = name; self.kcalEst = kcalEst; self.proteinG = proteinG; self.confidence = confidence
             }
         }
         public var items: [Item]

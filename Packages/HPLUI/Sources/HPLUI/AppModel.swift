@@ -4,6 +4,7 @@ import HPLCore
 import HPLHealth
 import HPLInference
 import HPLPipeline
+import HPLBridge
 
 /// HealthKit wiring handed to the app model. `nil` services = no persistent store (e.g. launched while locked).
 public struct HealthServices: Sendable {
@@ -55,6 +56,7 @@ public final class AppModel {
     public let isDegraded: Bool
     public let labs: LabsModel
     public let insights: InsightsModel
+    public let meals: MealsModel
     public private(set) var engineStatus = "Checking…"
     public private(set) var evalReport: EvalHarness.Report?
     public private(set) var isRunningEval = false
@@ -63,19 +65,24 @@ public final class AppModel {
     private let pipeline: DailyPipeline
     private let health: HealthServices?
     private let labRepository: (any LabRepository)?
+    private let mealRepository: (any MealRepository)?
     private let now: @Sendable () -> Date
     private var isSyncing = false
     private var observing = false
 
     public init(consents: any ConsentRepository, health: HealthServices? = nil, labs: LabServices? = nil,
-                insights: (any InsightsRepository)? = nil, pipeline: DailyPipeline = DailyPipeline(), isDegraded: Bool = false,
+                insights: (any InsightsRepository)? = nil, meals: MealServices? = nil, pipeline: DailyPipeline = DailyPipeline(), isDegraded: Bool = false,
                 now: @escaping @Sendable () -> Date = Date.init) {
         self.consents = consents
         self.health = health
         self.labs = LabsModel(services: labs, calendar: health?.calendar ?? .hplLocal())
         labRepository = labs?.repository
         let calendar = health?.calendar ?? .hplLocal()
-        let metrics = health.map { SummaryMetricSource(builder: SummaryBuilder(aggregates: $0.aggregates, labs: labs?.repository, calendar: calendar)) }
+        mealRepository = meals?.repository
+        self.meals = MealsModel(services: meals, consents: consents, calendar: calendar, now: now)
+        let metrics = health.map {
+            SummaryMetricSource(builder: SummaryBuilder(aggregates: $0.aggregates, labs: labs?.repository, meals: meals?.repository, calendar: calendar))
+        }
         self.insights = InsightsModel(repository: insights, metrics: metrics, calendar: calendar, now: now)
         self.pipeline = pipeline
         self.isDegraded = isDegraded
@@ -84,6 +91,12 @@ public final class AppModel {
         if let health, health.source.isHealthDataAvailable {
             healthStatus = isHealthConnected ? .ready(lastSync: nil) : .notConnected
         }
+        self.meals.onChange = { [weak self] in await self?.refreshAfterMealChange() }
+    }
+
+    /// A confirmed / edited / rejected meal changes today's `meals[]`, so rebuild Today (device data only; example mode is fixed).
+    private func refreshAfterMealChange() async {
+        if todaySource == .device { await loadToday() }
     }
 
     public var needsDisclaimer: Bool { disclaimerAcknowledgedAt == nil }
@@ -141,7 +154,8 @@ public final class AppModel {
         do {
             let today = LocalDay(now(), calendar: health.calendar)
             insights.begin(example: false)
-            if var s = try SummaryBuilder(aggregates: health.aggregates, labs: labRepository, calendar: health.calendar).build(day: today) {
+            let builder = SummaryBuilder(aggregates: health.aggregates, labs: labRepository, meals: mealRepository, calendar: health.calendar)
+            if var s = try builder.build(day: today) {
                 s.activeExperiments = insights.activeExperimentEntry().map { [$0] } ?? []
                 summary = s
                 todaySource = .device

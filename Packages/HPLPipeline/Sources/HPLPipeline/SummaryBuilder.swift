@@ -14,10 +14,18 @@ public struct SummaryBuilder: Sendable {
 
     private let aggregates: any HealthAggregateRepository
     private let labs: (any LabRepository)?
+    private let meals: (any MealRepository)?
     private let calendar: Calendar
 
-    public init(aggregates: any HealthAggregateRepository, labs: (any LabRepository)? = nil, calendar: Calendar = .hplLocal()) {
-        self.aggregates = aggregates; self.labs = labs; self.calendar = calendar
+    public init(aggregates: any HealthAggregateRepository, labs: (any LabRepository)? = nil, meals: (any MealRepository)? = nil,
+                calendar: Calendar = .hplLocal()) {
+        self.aggregates = aggregates; self.labs = labs; self.meals = meals; self.calendar = calendar
+    }
+
+    /// Confirmed meals only (pending glasses meals wait for the user).
+    public func mealsSummary(on day: LocalDay) throws -> [DailySummaryV1.Meal] {
+        guard let meals else { return [] }
+        return MealSummary.meals(on: day, meals: try meals.meals(), lifestyle: try meals.lifestyle(), calendar: calendar)
     }
 
     /// Latest confirmed result per dictionary analyte (§5.2: nothing unconfirmed, nothing out-of-dictionary).
@@ -96,7 +104,7 @@ public struct SummaryBuilder: Sendable {
                        activity.steps != nil, activity.activeKcal != nil, activity.exerciseMin != nil].filter { $0 }.count
         return DailySummaryV1(
             provenance: .device, day: day.description, dayOfWeek: day.weekdayAbbrev(calendar: calendar),
-            sleep: sleep, heart: heart, activity: activity, workouts: workouts, labsRecent: try labsRecent(on: day),
+            sleep: sleep, heart: heart, activity: activity, workouts: workouts, meals: try mealsSummary(on: day), labsRecent: try labsRecent(on: day),
             completeness: (Double(present) / Double(Self.expectedSignals) * 100).rounded() / 100)
     }
 

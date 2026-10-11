@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://heartypatch-lifestyle.local/spec/hpl.signed_event.v1.schema.json",
+  "title": "HPL signed event wrapper v1",
+  "description": "One line of an .hplevent file (JSON Lines). sig = lowercase hex HMAC-SHA256(secret, \"hpl.signed_event.v1\\n\" + pairing_id + \"\\n\" + ts + \"\\n\" + body), where body is the exact UTF-8 string of an hpl.event.v1 JSON object (no re-serialization, so no canonicalization is needed) and secret is the 32-byte pairing secret. ts is Unix seconds when the producer signed. See docs/m5-glasses.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "spec",
+    "pairing_id",
+    "ts",
+    "sig",
+    "body"
+  ],
+  "properties": {
+    "spec": {
+      "const": "hpl.signed_event.v1"
+    },
+    "pairing_id": {
+      "type": "string",
+      "pattern": "^[0-9a-z]{16}$"
+    },
+    "ts": {
+      "type": "integer",
+      "minimum": 1600000000,
+      "maximum": 4102444800
+    },
+    "sig": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "body": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 16384
+    }
+  }
+}

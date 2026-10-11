@@ -1,0 +1,24 @@
+{
+  "spec": "hpl.event.v1",
+  "event_id": "01M4P7SAJGANKTHYVGBT9W1TXP",
+  "type": "meal.logged",
+  "occurred_at": "2026-10-11T19:42:10Z",
+  "tz": "America/Los_Angeles",
+  "producer": {
+    "name": "glance",
+    "version": "0.1.0-fixture",
+    "processing": "on_device"
+  },
+  "payload": {
+    "items": [
+      {
+        "name": "chicken caesar salad",
+        "kcal_est": 470,
+        "protein_g": 32
+      }
+    ],
+    "tags": [
+      "delicious"
+    ]
+  }
+}

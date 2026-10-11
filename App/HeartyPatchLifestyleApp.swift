@@ -4,6 +4,7 @@ import HPLHealth
 import HPLIngest
 import HPLInference
 import HPLPipeline
+import HPLBridge
 import HPLUI
 
 @main
@@ -19,7 +20,14 @@ struct HeartyPatchLifestyleApp: App {
     }
 
     var body: some Scene {
-        WindowGroup { RootView(model: model) }
+        WindowGroup {
+            RootView(model: model)
+                // A shared / opened .hplevent file from a paired glasses companion (transport A, docs/m5-glasses.md).
+                .onOpenURL { url in
+                    guard url.isFileURL else { return }
+                    Task { await model.meals.importFile(at: url) }
+                }
+        }
             .onChange(of: scenePhase) { _, phase in
                 guard phase == .active else { return }
                 if model.isDegraded {
@@ -44,7 +52,8 @@ enum AppBootstrap {
             let health = HealthServices(source: HealthKitDataSource(), aggregates: store.aggregates, syncState: store.syncState)
             let importer = LabImporter(repository: store.labs, files: try ProtectedLabFileStore(), extractor: OnDeviceLabExtractor())
             return AppModel(consents: store.consents, health: health, labs: LabServices(importer: importer, repository: store.labs),
-                            insights: store.insights, pipeline: DailyPipeline(engine: InsightEngines.preferred()))
+                            insights: store.insights, meals: MealServices(repository: store.meals, secrets: KeychainPairingSecretStore()),
+                            pipeline: DailyPipeline(engine: InsightEngines.preferred()))
         } catch {
             // Data Protection: the store is unreadable until first unlock. No HealthKit work this launch (§10 DECISION: defer).
             return AppModel(consents: legacy, health: nil, pipeline: DailyPipeline(engine: InsightEngines.preferred()), isDegraded: true)

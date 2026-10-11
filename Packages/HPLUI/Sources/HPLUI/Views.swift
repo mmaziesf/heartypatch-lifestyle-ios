@@ -66,7 +66,7 @@ struct MainTabView: View {
         TabView {
             Tab("Today", systemImage: "sun.max") { NavigationStack { TodayView(model: model) } }
             Tab("Labs", systemImage: "testtube.2") { NavigationStack { LabsView(labs: model.labs) } }
-            Tab("Meals", systemImage: "fork.knife") { Placeholder(title: "Meals", detail: "Manual + Ray-Ban (VisionClaw) meal logs arrive in M5.") }
+            Tab("Meals", systemImage: "fork.knife") { NavigationStack { MealsView(meals: model.meals) } }
             Tab("Insights", systemImage: "lightbulb") { NavigationStack { InsightsView(insights: model.insights) } }
             Tab("Settings", systemImage: "gearshape") { NavigationStack { SettingsView(model: model) } }
         }
@@ -196,6 +196,7 @@ struct SettingsView: View {
                 Text("Notes are written on this device from your daily summary only, then checked by fixed safety rules.")
                     .font(.caption).foregroundStyle(.secondary)
             }
+            GlassesSettingsSection(meals: model.meals)
             #if DEBUG
             EvalSection(model: model)
             #endif
@@ -250,14 +251,6 @@ struct EvalSection: View {
     }
 }
 #endif
-
-struct Placeholder: View {
-    let title: String
-    let detail: String
-    var body: some View {
-        ContentUnavailableView(title, systemImage: "hammer", description: Text(detail))
-    }
-}
 
 extension JSONValue {
     var display: String {

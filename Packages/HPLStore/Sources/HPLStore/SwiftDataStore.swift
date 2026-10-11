@@ -67,7 +67,7 @@ public final class SwiftDataStore: @unchecked Sendable {
     public static let schemaTypes: [any PersistentModel.Type] = [
         HealthAggregateRecord.self, SyncStateRecord.self, ConsentRecord.self,
         SourceDocumentRecord.self, LabPanelRecord.self, LabResultRecord.self,
-        StoredNoteRecord.self, ExperimentRecord.self,
+        StoredNoteRecord.self, ExperimentRecord.self, BridgeRecord.self,
     ]
 
     private let container: ModelContainer
@@ -99,7 +99,7 @@ public final class SwiftDataStore: @unchecked Sendable {
         context.autosaveEnabled = false
     }
 
-    fileprivate func withContext<T>(_ body: (ModelContext) throws -> T) throws -> T {
+    func withContext<T>(_ body: (ModelContext) throws -> T) throws -> T {
         lock.lock(); defer { lock.unlock() }
         return try body(context)
     }
@@ -109,6 +109,7 @@ public final class SwiftDataStore: @unchecked Sendable {
     public var consents: any ConsentRepository { SwiftDataConsentRepository(store: self) }
     public var labs: any LabRepository { SwiftDataLabRepository(store: self) }
     public var insights: any InsightsRepository { SwiftDataInsightsRepository(store: self) }
+    public var meals: any MealRepository { KeyedMealRepository(store: SwiftDataBridgeRecordStore(store: self)) }
 
     /// "Delete all" for health data (§10): aggregates + anchors. HealthKit itself is untouched.
     public func deleteAllHealthData() throws {
