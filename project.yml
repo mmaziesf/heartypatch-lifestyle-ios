@@ -36,6 +36,7 @@ targets:
     dependencies:
       - package: HPLCore
       - package: HPLUI
+      - package: HPLCore
       - package: HPLStore
       - package: HPLHealth
       - package: HPLIngest
