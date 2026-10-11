@@ -5,6 +5,7 @@ import HPLHealth
 import HPLInference
 import HPLPipeline
 import HPLBridge
+import HPLCloud
 
 /// HealthKit wiring handed to the app model. `nil` services = no persistent store (e.g. launched while locked).
 public struct HealthServices: Sendable {
@@ -57,6 +58,7 @@ public final class AppModel {
     public let labs: LabsModel
     public let insights: InsightsModel
     public let meals: MealsModel
+    public let cloud: CloudModel
     public private(set) var engineStatus = "Checking…"
     public private(set) var evalReport: EvalHarness.Report?
     public private(set) var isRunningEval = false
@@ -71,8 +73,8 @@ public final class AppModel {
     private var observing = false
 
     public init(consents: any ConsentRepository, health: HealthServices? = nil, labs: LabServices? = nil,
-                insights: (any InsightsRepository)? = nil, meals: MealServices? = nil, pipeline: DailyPipeline = DailyPipeline(), isDegraded: Bool = false,
-                now: @escaping @Sendable () -> Date = Date.init) {
+                insights: (any InsightsRepository)? = nil, meals: MealServices? = nil, cloud: CloudServices? = nil,
+                pipeline: DailyPipeline = DailyPipeline(), isDegraded: Bool = false, now: @escaping @Sendable () -> Date = Date.init) {
         self.consents = consents
         self.health = health
         self.labs = LabsModel(services: labs, calendar: health?.calendar ?? .hplLocal())
@@ -84,6 +86,10 @@ public final class AppModel {
             SummaryMetricSource(builder: SummaryBuilder(aggregates: $0.aggregates, labs: labs?.repository, meals: meals?.repository, calendar: calendar))
         }
         self.insights = InsightsModel(repository: insights, metrics: metrics, calendar: calendar, now: now)
+        self.cloud = CloudModel(services: cloud ?? CloudServices(transport: DemoCloudTransport(), log: nil), consents: consents,
+                                windowSource: Self.cloudWindowSource(health: health, labs: labs?.repository, meals: meals?.repository,
+                                                                     consents: consents, now: now),
+                                calendar: calendar, now: now)
         self.pipeline = pipeline
         self.isDegraded = isDegraded
         self.now = now
@@ -92,6 +98,21 @@ public final class AppModel {
             healthStatus = isHealthConnected ? .ready(lastSync: nil) : .notConnected
         }
         self.meals.onChange = { [weak self] in await self?.refreshAfterMealChange() }
+    }
+
+    /// The user's own last `days` summaries ending yesterday, built locally; `nil` (→ labeled example) when Health isn't connected.
+    nonisolated static func cloudWindowSource(health: HealthServices?, labs: (any LabRepository)?, meals: (any MealRepository)?,
+                                              consents: any ConsentRepository, now: @escaping @Sendable () -> Date) -> CloudServices.WindowSource? {
+        guard let health else { return nil }
+        let builder = SummaryBuilder(aggregates: health.aggregates, labs: labs, meals: meals, calendar: health.calendar)
+        let source = health.source
+        let calendar = health.calendar
+        return { days in
+            guard source.isHealthDataAvailable, (try? consents.active(.healthkit, version: HealthConsent.version)) != nil else { return nil }
+            let anchor = LocalDay(now(), calendar: calendar).adding(days: -1, calendar: calendar)
+            let summaries = (0..<days).reversed().compactMap { try? builder.build(day: anchor.adding(days: -$0, calendar: calendar)) }
+            return CloudWindow(anchor: anchor, summaries: summaries, calendar: calendar)
+        }
     }
 
     /// A confirmed / edited / rejected meal changes today's `meals[]`, so rebuild Today (device data only; example mode is fixed).

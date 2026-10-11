@@ -1,0 +1,58 @@
+{
+  "insights": [
+    {
+      "body": "Your weekly median sleep fell from 415 to 385 minutes between the first and the most recent week.",
+      "evidence": [
+        "weeks.0.metrics.sleep_total_min.median",
+        "weeks.3.metrics.sleep_total_min.median"
+      ],
+      "kind": "observation",
+      "title": "Sleep across your weeks"
+    },
+    {
+      "body": "Your weekly median step count fell from 7900 to 6400 steps between the first and the most recent week.",
+      "evidence": [
+        "weeks.0.metrics.steps.median",
+        "weeks.3.metrics.steps.median"
+      ],
+      "kind": "observation",
+      "title": "Steps across your weeks"
+    },
+    {
+      "body": "Your weekly median resting heart rate rose from 60 to 61 bpm between the first and the most recent week.",
+      "evidence": [
+        "weeks.0.metrics.resting_hr.median",
+        "weeks.3.metrics.resting_hr.median"
+      ],
+      "kind": "observation",
+      "title": "Resting heart rate across your weeks"
+    },
+    {
+      "body": "Your highest step count in the recent rows was 13900 steps, on a Thu.",
+      "evidence": [
+        "daily.4.steps"
+      ],
+      "kind": "observation",
+      "title": "Your most active recent day"
+    },
+    {
+      "body": "Some recent evenings had late meals. Finishing dinner a little earlier is an easy thing to try for 14 days.",
+      "evidence": [
+        "daily.4.meals.1.tags"
+      ],
+      "kind": "nudge",
+      "title": "Late meals showed up"
+    },
+    {
+      "body": "Your weekly median sleep fell from 415 to 385 minutes between the first and the most recent week.",
+      "evidence": [
+        "weeks.0.metrics.sleep_total_min.median",
+        "weeks.3.metrics.sleep_total_min.median"
+      ],
+      "kind": "observation",
+      "title": "Sleep across your weeks"
+    }
+  ],
+  "request_id": "00000000-0000-4000-8000-000000000001",
+  "schema": "hpl.cloud_insights.v1"
+}

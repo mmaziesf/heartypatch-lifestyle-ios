@@ -1,0 +1,989 @@
+{
+  "daily": [
+    {
+      "bed_local": "23:30",
+      "day": -27,
+      "dow": "Sun",
+      "exercise_min": 20,
+      "hrv_ms": 69,
+      "meals": [
+        {
+          "label": "breakfast",
+          "t_local": "08:30",
+          "tags": [
+            "home-cooked"
+          ],
+          "name": "Grandma's lasagna"
+        },
+        {
+          "label": "dinner",
+          "t_local": "21:30",
+          "tags": []
+        }
+      ],
+      "resting_hr": 61,
+      "sleep_total_min": 435,
+      "steps": 12500,
+      "wake_local": "08:00",
+      "workouts": []
+    },
+    {
+      "bed_local": "23:00",
+      "day": -26,
+      "dow": "Mon",
+      "exercise_min": 35,
+      "hrv_ms": 69,
+      "meals": [
+        {
+          "label": "breakfast",
+          "t_local": "08:30",
+          "tags": [
+            "home-cooked"
+          ]
+        },
+        {
+          "label": "dinner",
+          "t_local": "19:30",
+          "tags": []
+        }
+      ],
+      "resting_hr": 61,
+      "sleep_total_min": 385,
+      "steps": 7600,
+      "wake_local": "07:30",
+      "workouts": [
+        {
+          "duration_min": 50,
+          "type": "running"
+        }
+      ]
+    },
+    {
+      "bed_local": "23:30",
+      "day": -25,
+      "dow": "Tue",
+      "exercise_min": 30,
+      "hrv_ms": 58,
+      "meals": [
+        {
+          "label": "breakfast",
+          "t_local": "09:00",
+          "tags": [
+            "home-cooked"
+          ]
+        },
+        {
+          "label": "dinner",
+          "t_local": "21:00",
+          "tags": []
+        }
+      ],
+      "resting_hr": 60,
+      "sleep_total_min": 430,
+      "steps": 12700,
+      "wake_local": "07:30",
+      "workouts": [
+        {
+          "duration_min": 50,
+          "type": "running"
+        }
+      ]
+    },
+    {
+      "bed_local": "23:30",
+      "day": -24,
+      "dow": "Wed",
+      "exercise_min": 15,
+      "hrv_ms": 50,
+      "meals": [
+        {
+          "label": "breakfast",
+          "t_local": "09:00",
+          "tags": [
+            "home-cooked"
+          ]
+        },
+        {
+          "label": "dinner",
+          "t_local": "20:00",
+          "tags": []
+        }
+      ],
+      "resting_hr": 60,
+      "sleep_total_min": 395,
+      "steps": 7900,
+      "wake_local": "07:30",
+      "workouts": []
+    },
+    {
+      "bed_local": "00:00",
+      "day": -23,
+      "dow": "Thu",
+      "exercise_min": 15,
+      "hrv_ms": 31,
+      "meals": [
+        {
+          "label": "breakfast",
+          "t_local": "08:30",
+          "tags": [
+            "home-cooked"
+          ]
+        },
+        {
+          "label": "dinner",
+          "t_local": "21:00",
+          "tags": [
+            "late"
+          ]
+        }
+      ],
+      "resting_hr": 61,
+      "sleep_total_min": 405,
+      "steps": 13900,
+      "wake_local": "07:30",
+      "workouts": [
+        {
+          "duration_min": 30,
+          "type": "yoga"
+        }
+      ]
+    },
+    {
+      "bed_local": "23:30",
+      "day": -22,
+      "dow": "Fri",
+      "exercise_min": 55,
+      "hrv_ms": 47,
+      "meals": [
+        {
+          "label": "breakfast",
+          "t_local": "09:00",
+          "tags": [
+            "home-cooked"
+          ]
+        },
+        {
+          "label": "dinner",
+          "t_local": "19:30",
+          "tags": []
+        }
+      ],
+      "resting_hr": 56,
+      "sleep_total_min": 430,
+      "steps": 3900,
+      "wake_local": "07:00",
+      "workouts": [
+        {
+          "duration_min": 50,
+          "type": "yoga"
+        }
+      ]
+    },
+    {
+      "bed_local": "23:30",
+      "day": -21,
+      "dow": "Sat",
+      "exercise_min": 25,
+      "hrv_ms": 36,
+      "meals": [
+        {
+          "label": "breakfast",
+          "t_local": "09:00",
+          "tags": [
+            "home-cooked"
+          ]
+        },
+        {
+          "label": "dinner",
+          "t_local": "20:00",
+          "tags": [
+            "late"
+          ]
+        }
+      ],
+      "resting_hr": 59,
+      "sleep_total_min": 415,
+      "steps": 3700,
+      "wake_local": "08:00",
+      "workouts": []
+    },
+    {
+      "bed_local": "23:30",
+      "day": -20,
+      "dow": "Sun",
+      "exercise_min": 5,
+      "hrv_ms": 49,
+      "meals": [
+        {
+          "label": "breakfast",
+          "t_local": "08:30",
+          "tags": [
+            "home-cooked"
+          ]
+        },
+        {
+          "label": "dinner",
+          "t_local": "20:00",
+          "tags": []
+        }
+      ],
+      "resting_hr": 61,
+      "sleep_total_min": 375,
+      "steps": 9600,
+      "wake_local": "07:30",
+      "workouts": []
+    },
+    {
+      "bed_local": "00:00",
+      "day": -19,
+      "dow": "Mon",
+      "exercise_min": 35,
+      "hrv_ms": 33,
+      "meals": [
+        {
+          "label": "breakfast",
+          "t_local": "08:30",
+          "tags": [
+            "home-cooked"
+          ]
+        },
+        {
+          "label": "dinner",
+          "t_local": "19:30",
+          "tags": []
+        }
+      ],
+      "resting_hr": 54,
+      "sleep_total_min": 405,
+      "steps": 5800,
+      "wake_local": "07:00",
+      "workouts": [
+        {
+          "duration_min": 40,
+          "type": "strength"
+        }
+      ]
+    },
+    {
+      "bed_local": "23:00",
+      "day": -18,
+      "dow": "Tue",
+      "exercise_min": 40,
+      "hrv_ms": 61,
+      "meals": [
+        {
+          "label": "breakfast",
+          "t_local": "08:30",
+          "tags": [
+            "home-cooked"
+          ]
+        },
+        {
+          "label": "dinner",
+          "t_local": "19:00",
+          "tags": [
+            "late"
+          ]
+        }
+      ],
+      "resting_hr": 56,
+      "sleep_total_min": 385,
+      "steps": 5800,
+      "wake_local": "07:30",
+      "workouts": [
+        {
+          "duration_min": 45,
+          "type": "running"
+        }
+      ]
+    },
+    {
+      "bed_local": "23:00",
+      "day": -17,
+      "dow": "Wed",
+      "exercise_min": 10,
+      "hrv_ms": 50,
+      "meals": [
+        {
+          "label": "breakfast",
+          "t_local": "08:00",
+          "tags": [
+            "home-cooked"
+          ]
+        },
+        {
+          "label": "dinner",
+          "t_local": "20:00",
+          "tags": [
+            "late"
+          ]
+        }
+      ],
+      "resting_hr": 54,
+      "sleep_total_min": 385,
+      "steps": 12100,
+      "wake_local": "07:30",
+      "workouts": []
+    },
+    {
+      "bed_local": "00:00",
+      "day": -16,
+      "dow": "Thu",
+      "exercise_min": 45,
+      "hrv_ms": 47,
+      "meals": [
+        {
+          "label": "breakfast",
+          "t_local": "08:00",
+          "tags": [
+            "home-cooked"
+          ]
+        },
+        {
+          "label": "dinner",
+          "t_local": "19:30",
+          "tags": [
+            "late"
+          ]
+        }
+      ],
+      "resting_hr": 59,
+      "sleep_total_min": 405,
+      "steps": 5700,
+      "wake_local": "08:00",
+      "workouts": [
+        {
+          "duration_min": 45,
+          "type": "strength"
+        }
+      ]
+    },
+    {
+      "bed_local": "23:00",
+      "day": -15,
+      "dow": "Fri",
+      "exercise_min": 5,
+      "hrv_ms": 44,
+      "meals": [
+        {
+          "label": "breakfast",
+          "t_local": "08:30",
+          "tags": [
+            "home-cooked"
+          ]
+        },
+        {
+          "label": "dinner",
+          "t_local": "19:00",
+          "tags": []
+        }
+      ],
+      "resting_hr": 58,
+      "sleep_total_min": 350,
+      "steps": 13400,
+      "wake_local": "07:30",
+      "workouts": []
+    },
+    {
+      "bed_local": "23:30",
+      "day": -14,
+      "dow": "Sat",
+      "exercise_min": 50,
+      "hrv_ms": 59,
+      "meals": [
+        {
+          "label": "breakfast",
+          "t_local": "08:30",
+          "tags": [
+            "home-cooked"
+          ]
+        },
+        {
+          "label": "dinner",
+          "t_local": "19:00",
+          "tags": [
+            "late"
+          ]
+        }
+      ],
+      "resting_hr": 54,
+      "sleep_total_min": 345,
+      "steps": 12700,
+      "wake_local": "07:30",
+      "workouts": []
+    },
+    {
+      "bed_local": "23:30",
+      "day": -13,
+      "dow": "Sun",
+      "exercise_min": 40,
+      "hrv_ms": 35,
+      "meals": [
+        {
+          "label": "breakfast",
+          "t_local": "08:30",
+          "tags": [
+            "home-cooked"
+          ]
+        },
+        {
+          "label": "dinner",
+          "t_local": "19:30",
+          "tags": [
+            "late"
+          ]
+        }
+      ],
+      "resting_hr": 57,
+      "sleep_total_min": 370,
+      "steps": 7500,
+      "wake_local": "07:30",
+      "workouts": []
+    },
+    {
+      "bed_local": "23:30",
+      "day": -12,
+      "dow": "Mon",
+      "exercise_min": 5,
+      "hrv_ms": 63,
+      "meals": [
+        {
+          "label": "breakfast",
+          "t_local": "08:30",
+          "tags": [
+            "home-cooked"
+          ]
+        },
+        {
+          "label": "dinner",
+          "t_local": "20:00",
+          "tags": []
+        }
+      ],
+      "resting_hr": 56,
+      "sleep_total_min": 350,
+      "steps": 13100,
+      "wake_local": "07:30",
+      "workouts": []
+    },
+    {
+      "bed_local": "23:00",
+      "day": -11,
+      "dow": "Tue",
+      "exercise_min": 0,
+      "hrv_ms": 31,
+      "meals": [
+        {
+          "label": "breakfast",
+          "t_local": "09:00",
+          "tags": [
+            "home-cooked"
+          ]
+        },
+        {
+          "label": "dinner",
+          "t_local": "21:30",
+          "tags": []
+        }
+      ],
+      "resting_hr": 57,
+      "sleep_total_min": 410,
+      "steps": 12700,
+      "wake_local": "07:30",
+      "workouts": []
+    },
+    {
+      "bed_local": "23:30",
+      "day": -10,
+      "dow": "Wed",
+      "exercise_min": 10,
+      "hrv_ms": 36,
+      "meals": [
+        {
+          "label": "breakfast",
+          "t_local": "08:00",
+          "tags": [
+            "home-cooked"
+          ]
+        },
+        {
+          "label": "dinner",
+          "t_local": "21:30",
+          "tags": [
+            "late"
+          ]
+        }
+      ],
+      "resting_hr": 56,
+      "sleep_total_min": 420,
+      "steps": 13300,
+      "wake_local": "08:00",
+      "workouts": []
+    },
+    {
+      "bed_local": "23:30",
+      "day": -9,
+      "dow": "Thu",
+      "exercise_min": 30,
+      "hrv_ms": 66,
+      "meals": [
+        {
+          "label": "breakfast",
+          "t_local": "08:00",
+          "tags": [
+            "home-cooked"
+          ]
+        },
+        {
+          "label": "dinner",
+          "t_local": "19:00",
+          "tags": []
+        }
+      ],
+      "resting_hr": 59,
+      "sleep_total_min": 395,
+      "steps": 5700,
+      "wake_local": "07:30",
+      "workouts": [
+        {
+          "duration_min": 35,
+          "type": "running"
+        }
+      ]
+    },
+    {
+      "bed_local": "23:00",
+      "day": -8,
+      "dow": "Fri",
+      "exercise_min": 30,
+      "hrv_ms": 40,
+      "meals": [
+        {
+          "label": "breakfast",
+          "t_local": "08:30",
+          "tags": [
+            "home-cooked"
+          ]
+        },
+        {
+          "label": "dinner",
+          "t_local": "19:30",
+          "tags": []
+        }
+      ],
+      "resting_hr": 57,
+      "sleep_total_min": 385,
+      "steps": 6500,
+      "wake_local": "07:00",
+      "workouts": []
+    },
+    {
+      "bed_local": "23:00",
+      "day": -7,
+      "dow": "Sat",
+      "exercise_min": 25,
+      "hrv_ms": 37,
+      "meals": [
+        {
+          "label": "breakfast",
+          "t_local": "08:30",
+          "tags": [
+            "home-cooked"
+          ]
+        },
+        {
+          "label": "dinner",
+          "t_local": "20:00",
+          "tags": []
+        }
+      ],
+      "resting_hr": 59,
+      "sleep_total_min": 400,
+      "steps": 4100,
+      "wake_local": "07:30",
+      "workouts": [
+        {
+          "duration_min": 55,
+          "type": "yoga"
+        }
+      ]
+    },
+    {
+      "bed_local": "23:00",
+      "day": -6,
+      "dow": "Sun",
+      "exercise_min": 35,
+      "hrv_ms": 30,
+      "meals": [
+        {
+          "label": "breakfast",
+          "t_local": "08:00",
+          "tags": [
+            "home-cooked"
+          ]
+        },
+        {
+          "label": "dinner",
+          "t_local": "21:30",
+          "tags": []
+        }
+      ],
+      "resting_hr": 62,
+      "sleep_total_min": 410,
+      "steps": 6400,
+      "wake_local": "08:00",
+      "workouts": [
+        {
+          "duration_min": 60,
+          "type": "running"
+        }
+      ]
+    },
+    {
+      "bed_local": "23:00",
+      "day": -5,
+      "dow": "Mon",
+      "exercise_min": 55,
+      "hrv_ms": 47,
+      "meals": [
+        {
+          "label": "breakfast",
+          "t_local": "08:30",
+          "tags": [
+            "home-cooked"
+          ]
+        },
+        {
+          "label": "dinner",
+          "t_local": "19:30",
+          "tags": []
+        }
+      ],
+      "resting_hr": 56,
+      "sleep_total_min": 430,
+      "steps": 12800,
+      "wake_local": "07:30",
+      "workouts": []
+    },
+    {
+      "bed_local": "23:30",
+      "day": -4,
+      "dow": "Tue",
+      "exercise_min": 50,
+      "hrv_ms": 53,
+      "meals": [
+        {
+          "label": "breakfast",
+          "t_local": "09:00",
+          "tags": [
+            "home-cooked"
+          ]
+        },
+        {
+          "label": "dinner",
+          "t_local": "19:00",
+          "tags": []
+        }
+      ],
+      "resting_hr": 54,
+      "sleep_total_min": 430,
+      "steps": 4300,
+      "wake_local": "07:00",
+      "workouts": []
+    },
+    {
+      "bed_local": "23:00",
+      "day": -3,
+      "dow": "Wed",
+      "exercise_min": 10,
+      "hrv_ms": 46,
+      "meals": [
+        {
+          "label": "breakfast",
+          "t_local": "08:30",
+          "tags": [
+            "home-cooked"
+          ]
+        },
+        {
+          "label": "dinner",
+          "t_local": "20:00",
+          "tags": []
+        }
+      ],
+      "resting_hr": 63,
+      "sleep_total_min": 355,
+      "steps": 4000,
+      "wake_local": "07:30",
+      "workouts": [
+        {
+          "duration_min": 55,
+          "type": "yoga"
+        }
+      ]
+    },
+    {
+      "bed_local": "23:30",
+      "day": -2,
+      "dow": "Thu",
+      "exercise_min": 40,
+      "hrv_ms": 63,
+      "meals": [
+        {
+          "label": "breakfast",
+          "t_local": "09:00",
+          "tags": [
+            "home-cooked"
+          ]
+        },
+        {
+          "label": "dinner",
+          "t_local": "19:30",
+          "tags": []
+        }
+      ],
+      "resting_hr": 61,
+      "sleep_total_min": 335,
+      "steps": 10400,
+      "wake_local": "07:30",
+      "workouts": []
+    },
+    {
+      "bed_local": "23:00",
+      "day": -1,
+      "dow": "Fri",
+      "exercise_min": 40,
+      "hrv_ms": 41,
+      "meals": [
+        {
+          "label": "breakfast",
+          "t_local": "08:00",
+          "tags": [
+            "home-cooked"
+          ]
+        },
+        {
+          "label": "dinner",
+          "t_local": "20:00",
+          "tags": []
+        }
+      ],
+      "resting_hr": 55,
+      "sleep_total_min": 375,
+      "steps": 3500,
+      "wake_local": "07:30",
+      "workouts": []
+    },
+    {
+      "bed_local": "23:30",
+      "day": 0,
+      "dow": "Sat",
+      "exercise_min": 30,
+      "hrv_ms": 46,
+      "meals": [
+        {
+          "label": "breakfast",
+          "t_local": "08:30",
+          "tags": [
+            "home-cooked"
+          ]
+        },
+        {
+          "label": "dinner",
+          "t_local": "19:30",
+          "tags": []
+        }
+      ],
+      "resting_hr": 62,
+      "sleep_total_min": 385,
+      "steps": 9700,
+      "wake_local": "07:30",
+      "workouts": []
+    }
+  ],
+  "days_with_data": 28,
+  "labs": [
+    {
+      "age_bucket": "31-90",
+      "analyte": "hba1c",
+      "unit": "%",
+      "value": 5.4
+    },
+    {
+      "age_bucket": "31-90",
+      "analyte": "ldl",
+      "unit": "mg/dL",
+      "value": 110
+    }
+  ],
+  "provenance": "synthetic_fixture",
+  "request_id": "00000000-0000-4000-8000-000000000001",
+  "schema": "hpl.cloud_payload.v1",
+  "weeks": [
+    {
+      "days_with_data": 7,
+      "metrics": {
+        "active_kcal": {
+          "median": 440,
+          "p10": 260,
+          "p90": 650
+        },
+        "exercise_min": {
+          "median": 25,
+          "p10": 15,
+          "p90": 45
+        },
+        "hrv_ms": {
+          "median": 50,
+          "p10": 34,
+          "p90": 69
+        },
+        "resting_hr": {
+          "median": 60,
+          "p10": 58,
+          "p90": 61
+        },
+        "sleep_deep_min": {
+          "median": 50,
+          "p10": 45,
+          "p90": 65
+        },
+        "sleep_total_min": {
+          "median": 415,
+          "p10": 390,
+          "p90": 430
+        },
+        "steps": {
+          "median": 7900,
+          "p10": 3800,
+          "p90": 13200
+        }
+      },
+      "week": -3
+    },
+    {
+      "days_with_data": 7,
+      "metrics": {
+        "active_kcal": {
+          "median": 470,
+          "p10": 320,
+          "p90": 570
+        },
+        "exercise_min": {
+          "median": 35,
+          "p10": 5,
+          "p90": 45
+        },
+        "hrv_ms": {
+          "median": 49,
+          "p10": 40,
+          "p90": 60
+        },
+        "resting_hr": {
+          "median": 56,
+          "p10": 54,
+          "p90": 60
+        },
+        "sleep_deep_min": {
+          "median": 55,
+          "p10": 40,
+          "p90": 75
+        },
+        "sleep_total_min": {
+          "median": 385,
+          "p10": 345,
+          "p90": 405
+        },
+        "steps": {
+          "median": 9600,
+          "p10": 5800,
+          "p90": 13000
+        }
+      },
+      "week": -2
+    },
+    {
+      "days_with_data": 7,
+      "metrics": {
+        "active_kcal": {
+          "median": 360,
+          "p10": 270,
+          "p90": 640
+        },
+        "exercise_min": {
+          "median": 25,
+          "p10": 5,
+          "p90": 35
+        },
+        "hrv_ms": {
+          "median": 37,
+          "p10": 33,
+          "p90": 64
+        },
+        "resting_hr": {
+          "median": 57,
+          "p10": 56,
+          "p90": 59
+        },
+        "sleep_deep_min": {
+          "median": 40,
+          "p10": 35,
+          "p90": 55
+        },
+        "sleep_total_min": {
+          "median": 395,
+          "p10": 360,
+          "p90": 415
+        },
+        "steps": {
+          "median": 7500,
+          "p10": 5100,
+          "p90": 13200
+        }
+      },
+      "week": -1
+    },
+    {
+      "days_with_data": 7,
+      "metrics": {
+        "active_kcal": {
+          "median": 500,
+          "p10": 370,
+          "p90": 590
+        },
+        "exercise_min": {
+          "median": 40,
+          "p10": 20,
+          "p90": 50
+        },
+        "hrv_ms": {
+          "median": 46,
+          "p10": 37,
+          "p90": 57
+        },
+        "resting_hr": {
+          "median": 61,
+          "p10": 55,
+          "p90": 62
+        },
+        "sleep_deep_min": {
+          "median": 60,
+          "p10": 40,
+          "p90": 70
+        },
+        "sleep_total_min": {
+          "median": 385,
+          "p10": 345,
+          "p90": 430
+        },
+        "steps": {
+          "median": 6400,
+          "p10": 3800,
+          "p90": 11300
+        }
+      },
+      "week": 0
+    }
+  ],
+  "window_days": 28
+}

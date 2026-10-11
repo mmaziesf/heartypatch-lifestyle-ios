@@ -3,7 +3,9 @@
 
 - Every schema must itself be a valid 2020-12 schema.
 - Every Fixtures/daily_summary/*.json and Fixtures/events/*.json must validate.
-- Every Fixtures/invalid/*.json must FAIL (summary-* vs daily_summary schema, event-* vs event schema).
+- Every Fixtures/cloud/payload-*.json / insights-*.json must validate against hpl.cloud_payload.v1 / hpl.cloud_insights.v1.
+- Every Fixtures/invalid/*.json must FAIL (summary-* vs daily_summary, event-* vs event, cloud-payload-* vs
+  cloud_payload, cloud-insights-* vs cloud_insights).
 - Every valid fixture must carry "synthetic" in its filename (no real user data in the repo).
 - Fixtures/signed/*.hplevent: every line is a schema-valid hpl.signed_event.v1 wrapper, verifies with the test-only
   fixture pairing (scripts/hpl_event_sign.py), and its body is a schema-valid hpl.event.v1 event.
@@ -32,12 +34,16 @@ def main() -> int:
     summary_schema = load(SPEC / "hpl.daily_summary.v1.schema.json")
     event_schema = load(SPEC / "hpl.event.v1.schema.json")
     signed_schema = load(SPEC / "hpl.signed_event.v1.schema.json")
-    for s in (summary_schema, event_schema, signed_schema):
+    payload_schema = load(SPEC / "hpl.cloud_payload.v1.schema.json")
+    insights_schema = load(SPEC / "hpl.cloud_insights.v1.schema.json")
+    for s in (summary_schema, event_schema, signed_schema, payload_schema, insights_schema):
         Draft202012Validator.check_schema(s)
     validators = {
         "summary": Draft202012Validator(summary_schema),
         "event": Draft202012Validator(event_schema),
         "signed": Draft202012Validator(signed_schema),
+        "cloud-payload": Draft202012Validator(payload_schema),
+        "cloud-insights": Draft202012Validator(insights_schema),
     }
     failures = []
 
@@ -54,8 +60,10 @@ def main() -> int:
         check_valid("summary", p)
     for p in sorted((FIX / "events").glob("*.json")):
         check_valid("event", p)
+    for p in sorted((FIX / "cloud").glob("*.json")):
+        check_valid("cloud-payload" if p.name.startswith("payload-") else "cloud-insights", p)
     for p in sorted((FIX / "invalid").glob("*.json")):
-        kind = "summary" if p.name.startswith("summary-") else "event"
+        kind = next((k for k in ("summary", "cloud-payload", "cloud-insights") if p.name.startswith(k + "-")), "event")
         if validators[kind].is_valid(load(p)):
             failures.append(f"{p.relative_to(ROOT)}: expected INVALID but schema accepted it")
         else:

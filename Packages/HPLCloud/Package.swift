@@ -7,9 +7,11 @@ let package = Package(
     products: [.library(name: "HPLCloud", targets: ["HPLCloud"])],
     dependencies: [
         .package(path: "../HPLCore"),
+        .package(path: "../HPLInference"),
+        .package(path: "../HPLStore"),
     ],
     targets: [
-        .target(name: "HPLCloud", dependencies: ["HPLCore"]),
-        .testTarget(name: "HPLCloudTests", dependencies: ["HPLCloud", "HPLCore"]),
+        .target(name: "HPLCloud", dependencies: ["HPLCore", "HPLInference"]),
+        .testTarget(name: "HPLCloudTests", dependencies: ["HPLCloud", "HPLCore", "HPLInference", "HPLStore"]),
     ]
 )

@@ -13,9 +13,12 @@ let package = Package(
         .package(path: "../HPLInference"),
         .package(path: "../HPLPipeline"),
         .package(path: "../HPLBridge"),
+        .package(path: "../HPLCloud"),
     ],
     targets: [
-        .target(name: "HPLUI", dependencies: ["HPLCore", "HPLStore", "HPLHealth", "HPLIngest", "HPLInference", "HPLPipeline", "HPLBridge"]),
-        .testTarget(name: "HPLUITests", dependencies: ["HPLUI", "HPLCore", "HPLStore", "HPLHealth", "HPLIngest", "HPLInference", "HPLPipeline", "HPLBridge"]),
+        .target(name: "HPLUI", dependencies: ["HPLCore", "HPLStore", "HPLHealth", "HPLIngest", "HPLInference", "HPLPipeline", "HPLBridge", "HPLCloud"]),
+        .testTarget(name: "HPLUITests", dependencies: [
+            "HPLUI", "HPLCore", "HPLStore", "HPLHealth", "HPLIngest", "HPLInference", "HPLPipeline", "HPLBridge", "HPLCloud",
+        ]),
     ]
 )

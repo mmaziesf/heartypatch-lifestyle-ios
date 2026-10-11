@@ -113,6 +113,8 @@ public final class SwiftDataStore: @unchecked Sendable {
     public var labs: any LabRepository { SwiftDataLabRepository(store: self) }
     public var insights: any InsightsRepository { SwiftDataInsightsRepository(store: self) }
     public var meals: any MealRepository { KeyedMealRepository(store: SwiftDataBridgeRecordStore(store: self)) }
+    /// Generic keyed records (glasses bridge, cloud egress log).
+    public var records: any BridgeRecordStore { SwiftDataBridgeRecordStore(store: self) }
 
     /// "Delete all" for health data (§10): aggregates + anchors. HealthKit itself is untouched.
     public func deleteAllHealthData() throws {

@@ -5,6 +5,7 @@ import HPLIngest
 import HPLInference
 import HPLPipeline
 import HPLBridge
+import HPLCloud
 import HPLUI
 
 @main
@@ -53,6 +54,8 @@ enum AppBootstrap {
             let importer = LabImporter(repository: store.labs, files: try ProtectedLabFileStore(), extractor: OnDeviceLabExtractor())
             return AppModel(consents: store.consents, health: health, labs: LabServices(importer: importer, repository: store.labs),
                             insights: store.insights, meals: MealServices(repository: store.meals, secrets: KeychainPairingSecretStore()),
+                            // M6: the demo analyzer runs on this iPhone; no endpoint is configured, so nothing leaves the device.
+                            cloud: CloudServices(transport: DemoCloudTransport(), log: RecordStoreEgressLog(store: store.records)),
                             pipeline: DailyPipeline(engine: InsightEngines.preferred()))
         } catch {
             // Data Protection: the store is unreadable until first unlock. No HealthKit work this launch (§10 DECISION: defer).

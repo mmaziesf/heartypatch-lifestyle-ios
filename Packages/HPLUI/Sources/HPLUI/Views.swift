@@ -206,8 +206,8 @@ struct SettingsView: View {
                     Button("Connect Apple Health") { Task { await model.connectHealth() } }
                 }
                 LabeledContent("Stored", value: "Per-day totals only, on this device")
-                LabeledContent("Cloud analysis", value: "Off")
             }
+            CloudSettingsSection(cloud: model.cloud)
         }
         .navigationTitle("Settings")
         .task { await model.refreshEngineStatus() }

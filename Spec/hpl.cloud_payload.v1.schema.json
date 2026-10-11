@@ -1,0 +1,322 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://heartypatch.local/spec/hpl.cloud_payload.v1.schema.json",
+  "title": "hpl.cloud_payload.v1",
+  "description": "The only shape that may leave the device for opt-in cloud analysis (architecture \u00a77). Allowlist only: no names, dates, free text, locations, device ids or lab/clinic names. Days are relative (0 = last day of the window). Times are rounded to 30 minutes.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "request_id",
+    "provenance",
+    "window_days",
+    "days_with_data",
+    "weeks",
+    "daily",
+    "labs"
+  ],
+  "properties": {
+    "schema": {
+      "const": "hpl.cloud_payload.v1"
+    },
+    "request_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "description": "Ephemeral per-job UUID (lowercase). Never reused, never tied to the user."
+    },
+    "provenance": {
+      "enum": [
+        "device",
+        "synthetic_fixture"
+      ]
+    },
+    "window_days": {
+      "enum": [
+        28,
+        56
+      ]
+    },
+    "days_with_data": {
+      "type": "integer",
+      "minimum": 14,
+      "maximum": 56
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "age_band": {
+          "type": "string",
+          "pattern": "^((1[5-9]|[2-7][0-9])-(1[5-9]|[2-7][0-9])|80\\+)$"
+        },
+        "sex_for_ranges": {
+          "enum": [
+            "M",
+            "F"
+          ]
+        }
+      }
+    },
+    "weeks": {
+      "type": "array",
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "week",
+          "days_with_data",
+          "metrics"
+        ],
+        "properties": {
+          "week": {
+            "type": "integer",
+            "minimum": -7,
+            "maximum": 0
+          },
+          "days_with_data": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 7
+          },
+          "metrics": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sleep_total_min": {
+                "$ref": "#/$defs/stat"
+              },
+              "sleep_deep_min": {
+                "$ref": "#/$defs/stat"
+              },
+              "resting_hr": {
+                "$ref": "#/$defs/stat"
+              },
+              "hrv_ms": {
+                "$ref": "#/$defs/stat"
+              },
+              "steps": {
+                "$ref": "#/$defs/stat"
+              },
+              "exercise_min": {
+                "$ref": "#/$defs/stat"
+              },
+              "active_kcal": {
+                "$ref": "#/$defs/stat"
+              }
+            }
+          }
+        }
+      }
+    },
+    "daily": {
+      "type": "array",
+      "maxItems": 28,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "day",
+          "dow",
+          "meals",
+          "workouts"
+        ],
+        "properties": {
+          "day": {
+            "type": "integer",
+            "minimum": -27,
+            "maximum": 0
+          },
+          "dow": {
+            "enum": [
+              "Mon",
+              "Tue",
+              "Wed",
+              "Thu",
+              "Fri",
+              "Sat",
+              "Sun"
+            ]
+          },
+          "sleep_total_min": {
+            "type": "integer",
+            "minimum": 180,
+            "maximum": 720
+          },
+          "resting_hr": {
+            "type": "integer",
+            "minimum": 38,
+            "maximum": 100
+          },
+          "hrv_ms": {
+            "type": "integer",
+            "minimum": 8,
+            "maximum": 160
+          },
+          "steps": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 35000
+          },
+          "exercise_min": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 240
+          },
+          "bed_local": {
+            "$ref": "#/$defs/half_hour"
+          },
+          "wake_local": {
+            "$ref": "#/$defs/half_hour"
+          },
+          "meals": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "t_local",
+                "label",
+                "tags"
+              ],
+              "properties": {
+                "t_local": {
+                  "$ref": "#/$defs/half_hour"
+                },
+                "label": {
+                  "enum": [
+                    "breakfast",
+                    "lunch",
+                    "dinner",
+                    "snack",
+                    "drink",
+                    "meal"
+                  ]
+                },
+                "tags": {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "enum": [
+                      "late",
+                      "alcohol",
+                      "high-sugar",
+                      "high-protein",
+                      "high-fiber",
+                      "home-cooked",
+                      "restaurant",
+                      "caffeine",
+                      "processed"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "workouts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "duration_min"
+              ],
+              "properties": {
+                "type": {
+                  "enum": [
+                    "running",
+                    "cycling",
+                    "strength",
+                    "walking",
+                    "yoga",
+                    "swimming",
+                    "hiking",
+                    "hiit",
+                    "other"
+                  ]
+                },
+                "duration_min": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 300,
+                  "multipleOf": 5
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "labs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "analyte",
+          "value",
+          "unit",
+          "age_bucket"
+        ],
+        "properties": {
+          "analyte": {
+            "enum": [
+              "ldl",
+              "hdl",
+              "cholesterol_total",
+              "non_hdl",
+              "triglycerides",
+              "glucose",
+              "hba1c"
+            ]
+          },
+          "value": {
+            "type": "number",
+            "minimum": 0
+          },
+          "unit": {
+            "enum": [
+              "mg/dL",
+              "%"
+            ]
+          },
+          "age_bucket": {
+            "enum": [
+              "0-30",
+              "31-90",
+              "91-180",
+              "180+"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "stat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "median",
+        "p10",
+        "p90"
+      ],
+      "properties": {
+        "median": {
+          "type": "number"
+        },
+        "p10": {
+          "type": "number"
+        },
+        "p90": {
+          "type": "number"
+        }
+      }
+    },
+    "half_hour": {
+      "type": "string",
+      "pattern": "^([01][0-9]|2[0-3]):(00|30)$"
+    }
+  }
+}

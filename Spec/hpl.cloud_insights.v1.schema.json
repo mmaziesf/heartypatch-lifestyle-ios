@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://heartypatch.local/spec/hpl.cloud_insights.v1.schema.json",
+  "title": "hpl.cloud_insights.v1",
+  "description": "What a cloud analyzer may return. Observations and nudges only; each insight cites paths into the sent payload. Re-checked on device by OutputGuard before anything is shown.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "request_id",
+    "insights"
+  ],
+  "properties": {
+    "schema": {
+      "const": "hpl.cloud_insights.v1"
+    },
+    "request_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "insights": {
+      "type": "array",
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "title",
+          "body",
+          "evidence"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "observation",
+              "nudge"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "body": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 400
+          },
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 4,
+            "items": {
+              "type": "string",
+              "pattern": "^(weeks|daily|labs|profile)(\\.[A-Za-z0-9_]+)+$"
+            }
+          }
+        }
+      }
+    }
+  }
+}

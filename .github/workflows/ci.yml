@@ -30,6 +30,8 @@ jobs:
         run: python3 scripts/test_spec_roundtrip.py
       - name: No PHI in logs (print/NSLog/non-private Logger)
         run: scripts/check_no_phi_logging.sh
+      - name: Egress boundary (networking only in HTTPSCloudTransport)
+        run: scripts/check_egress_boundary.sh
 
   lint:
     name: SwiftLint
