@@ -1,0 +1,20 @@
+HP Lifestyle turns the data you already have into short, practical lifestyle notes, and helps you try small changes and see how they go.
+
+WHAT IT DOES
+• Daily summary: sleep, resting heart rate, HRV, steps and exercise from Apple Health, compared with your own 28-day typical.
+• Coaching-style notes: up to three a day, written on your iPhone and checked by fixed safety rules. Every note shows the numbers it is based on ("Why am I seeing this?").
+• Self-experiments: try a change such as an earlier wind-down for 7 or 14 days, check in daily, and compare with your own baseline.
+• Lab reports: import a PDF or photo of your blood work, confirm each value, and keep your results by collection date, exactly as printed on your report, with the report's own ranges. HP Lifestyle does not interpret lab values.
+• Meals: log meals by hand, or confirm meals sent from a paired glasses companion app. Meal times and simple tags feed into your notes.
+• Optional cloud analysis: off by default. When you turn it on, you preview the exact de-identified, coarsened numbers before anything is sent. In this version the analysis runs on your iPhone.
+
+PRIVATE BY DESIGN
+• Your data stays on your iPhone in an encrypted, file-protected store. No account, no server.
+• Apple Health access is read-only. Only per-day totals are kept.
+• No ads, no analytics SDKs, no tracking. Nothing is sold or shared.
+• Export everything as JSON, or delete everything, from Settings.
+
+IMPORTANT
+HeartyPatch Lifestyle provides general wellness information and self-experiment ideas based on data you choose to share with it. It is not a medical device and does not diagnose, treat, cure, or prevent any disease or provide medical advice. Lab values are shown as printed on your report; we do not interpret them. Talk to a qualified clinician about any health concern or before changing medications, diet, or exercise in significant ways. If you think you may have a medical emergency, call your local emergency number.
+
+Requires an iPhone with Apple Health. An Apple Watch is recommended for sleep, heart rate and HRV.

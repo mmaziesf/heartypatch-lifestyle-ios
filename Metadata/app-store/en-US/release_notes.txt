@@ -1,0 +1,1 @@
+First TestFlight build. Please try: connecting Apple Health, the Today notes and "Why am I seeing this?", starting a 7-day experiment, importing a lab report, logging a meal, the daily reminder, and Settings › Delete all data. Report anything confusing or wrong via TestFlight feedback.

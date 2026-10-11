@@ -1,0 +1,11 @@
+HP Lifestyle is a general wellness app. It is not a medical device and makes no medical claims. Lab values are shown as printed on the user's report and are never interpreted.
+
+No account or sign-in is needed. All processing happens on the device; the app has no server. Nothing is sent off the device in this version: the optional "Cloud analysis" feature runs a demo analyzer locally and shows the exact payload before running.
+
+HealthKit: read-only (sleep, heart rate, HRV, resting heart rate, steps, active energy, exercise minutes, workouts, body measurements). Used only to build daily summaries shown in the app. Nothing is written to Health. HealthKit data is not used for advertising and is not stored in iCloud.
+
+Testing without Health data: skip "Connect Apple Health" during onboarding. Today then shows a clearly labeled synthetic example ("EXAMPLE DATA: not yours").
+
+Glasses meals: optional; requires a paired companion app. Settings › Glasses meals › Pair a companion shows the pairing flow; meals can also be added by hand on the Meals tab.
+
+Settings › Privacy & your data has Export all data (JSON) and Delete all data.

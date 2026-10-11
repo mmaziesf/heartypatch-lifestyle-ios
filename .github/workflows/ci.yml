@@ -32,6 +32,8 @@ jobs:
         run: scripts/check_no_phi_logging.sh
       - name: Egress boundary (networking only in HTTPSCloudTransport)
         run: scripts/check_egress_boundary.sh
+      - name: App Store copy + privacy manifest (wellness framing, §13)
+        run: python3 scripts/check_store_copy.py
 
   lint:
     name: SwiftLint
@@ -95,6 +97,19 @@ jobs:
             -project HeartyPatchLifestyle.xcodeproj \
             -scheme HeartyPatchLifestyle \
             -destination "id=${{ steps.sim.outputs.udid }}" \
+            -derivedDataPath .derived \
+            -skipPackagePluginValidation \
+            CODE_SIGNING_ALLOWED=NO | xcbeautify --renderer github-actions
+      - name: Privacy manifest is bundled
+        run: test -f .derived/Build/Products/Debug-iphonesimulator/HeartyPatchLifestyle.app/PrivacyInfo.xcprivacy
+      - name: Release build for device (unsigned; TestFlight archives are signed locally, docs/testflight-checklist.md)
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project HeartyPatchLifestyle.xcodeproj \
+            -scheme HeartyPatchLifestyle \
+            -configuration Release \
+            -destination "generic/platform=iOS" \
             -derivedDataPath .derived \
             -skipPackagePluginValidation \
             CODE_SIGNING_ALLOWED=NO | xcbeautify --renderer github-actions

@@ -59,6 +59,10 @@ public final class AppModel {
     public let insights: InsightsModel
     public let meals: MealsModel
     public let cloud: CloudModel
+    public let reminders: ReminderModel
+    /// Set when "Delete all" finished; the app then rebuilds its model from the (now empty) store.
+    public private(set) var wipeReport: WipeReport?
+    public private(set) var isWiping = false
     public private(set) var engineStatus = "Checking…"
     public private(set) var evalReport: EvalHarness.Report?
     public private(set) var isRunningEval = false
@@ -68,12 +72,16 @@ public final class AppModel {
     private let health: HealthServices?
     private let labRepository: (any LabRepository)?
     private let mealRepository: (any MealRepository)?
+    private let insightsRepository: (any InsightsRepository)?
+    private let egressLog: (any EgressLog)?
+    private let wiper: DataWiper?
     private let now: @Sendable () -> Date
     private var isSyncing = false
     private var observing = false
 
     public init(consents: any ConsentRepository, health: HealthServices? = nil, labs: LabServices? = nil,
                 insights: (any InsightsRepository)? = nil, meals: MealServices? = nil, cloud: CloudServices? = nil,
+                reminders: (any ReminderScheduler)? = nil, prefs: any PreferencesStore = InMemoryPreferences(), wiper: DataWiper? = nil,
                 pipeline: DailyPipeline = DailyPipeline(), isDegraded: Bool = false, now: @escaping @Sendable () -> Date = Date.init) {
         self.consents = consents
         self.health = health
@@ -81,6 +89,10 @@ public final class AppModel {
         labRepository = labs?.repository
         let calendar = health?.calendar ?? .hplLocal()
         mealRepository = meals?.repository
+        insightsRepository = insights
+        egressLog = cloud?.log
+        self.wiper = wiper
+        self.reminders = ReminderModel(scheduler: reminders, prefs: prefs)
         self.meals = MealsModel(services: meals, consents: consents, calendar: calendar, now: now)
         let metrics = health.map {
             SummaryMetricSource(builder: SummaryBuilder(aggregates: $0.aggregates, labs: labs?.repository, meals: meals?.repository, calendar: calendar))
@@ -98,6 +110,31 @@ public final class AppModel {
             healthStatus = isHealthConnected ? .ready(lastSync: nil) : .notConnected
         }
         self.meals.onChange = { [weak self] in await self?.refreshAfterMealChange() }
+    }
+
+    // MARK: Your data (§9.2 export all / delete all, §10)
+
+    /// Every consent ever recorded (granted and revoked), newest first, for Settings › Consents.
+    public var consentHistory: [Consent] { ((try? consents.all()) ?? []).sorted { $0.grantedAt > $1.grantedAt } }
+
+    public var canDeleteAll: Bool { wiper != nil && !isDegraded }
+
+    /// Wipes the database (incl. HealthKit anchors), report files, Keychain secrets, preferences and reminders, then
+    /// re-reads each to verify. HealthKit's own data and the permission you gave in iOS are untouched.
+    public func deleteAll() async {
+        guard let wiper, !isWiping else { return }
+        isWiping = true
+        defer { isWiping = false }
+        wipeReport = await wiper.wipeAll(now: now())
+    }
+
+    public func clearWipeReport() { wipeReport = nil }
+
+    /// `hpl.export_all.v1` of everything stored on this device.
+    public func exportAllJSON() throws -> Data {
+        let sources = AllDataExport.Sources(consents: consents, aggregates: health?.aggregates, labs: labRepository, meals: mealRepository,
+                                            insights: insightsRepository, egress: egressLog)
+        return try AllDataExport.make(sources, now: now(), calendar: health?.calendar ?? .hplLocal()).encoded()
     }
 
     /// The user's own last `days` summaries ending yesterday, built locally; `nil` (→ labeled example) when Health isn't connected.

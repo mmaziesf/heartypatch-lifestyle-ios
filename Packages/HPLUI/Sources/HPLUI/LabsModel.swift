@@ -55,7 +55,7 @@ public final class LabsModel {
             case .review(let session):
                 if session.rows.isEmpty {
                     try await services.importer.discard(session)
-                    notice = "No lab rows were recognized in this file. Manual entry arrives later in M2."
+                    notice = "No lab rows were recognized in this file. Try a sharper photo or the PDF from your lab portal."
                 } else {
                     review = session
                 }

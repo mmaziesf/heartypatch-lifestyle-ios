@@ -40,6 +40,15 @@ public protocol PairingSecretStore: Sendable {
     func secret(for pairingID: String) throws -> [UInt8]?
     func setSecret(_ secret: [UInt8], for pairingID: String) throws
     func removeSecret(for pairingID: String) throws
+    /// "Delete all" (§10): every pairing secret this app stored.
+    func removeAll() throws
+    func count() throws -> Int
+}
+
+public extension PairingSecretStore {
+    var wipeTarget: any WipeTarget {
+        ClosureWipeTarget(name: "Keychain pairing secrets", wipe: { try self.removeAll() }, remaining: { try self.count() })
+    }
 }
 
 public final class InMemoryPairingSecretStore: PairingSecretStore, @unchecked Sendable {
@@ -49,6 +58,8 @@ public final class InMemoryPairingSecretStore: PairingSecretStore, @unchecked Se
     public func secret(for pairingID: String) throws -> [UInt8]? { lock.lock(); defer { lock.unlock() }; return rows[pairingID] }
     public func setSecret(_ secret: [UInt8], for pairingID: String) throws { lock.lock(); defer { lock.unlock() }; rows[pairingID] = secret }
     public func removeSecret(for pairingID: String) throws { lock.lock(); defer { lock.unlock() }; rows[pairingID] = nil }
+    public func removeAll() throws { lock.lock(); defer { lock.unlock() }; rows = [:] }
+    public func count() throws -> Int { lock.lock(); defer { lock.unlock() }; return rows.count }
 }
 
 #if canImport(Security)
@@ -87,6 +98,23 @@ public struct KeychainPairingSecretStore: PairingSecretStore {
     public func removeSecret(for pairingID: String) throws {
         let status = SecItemDelete(query(pairingID) as CFDictionary)
         guard status == errSecSuccess || status == errSecItemNotFound else { throw PairingError.keychain(status) }
+    }
+
+    /// Every generic password under this service (all pairings, including any orphaned by a crash mid-pair).
+    public func removeAll() throws {
+        let q: [String: Any] = [kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: service]
+        let status = SecItemDelete(q as CFDictionary)
+        guard status == errSecSuccess || status == errSecItemNotFound else { throw PairingError.keychain(status) }
+    }
+
+    public func count() throws -> Int {
+        let q: [String: Any] = [kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: service,
+                                kSecMatchLimit as String: kSecMatchLimitAll, kSecReturnAttributes as String: true]
+        var out: CFTypeRef?
+        let status = SecItemCopyMatching(q as CFDictionary, &out)
+        if status == errSecItemNotFound { return 0 }
+        guard status == errSecSuccess else { throw PairingError.keychain(status) }
+        return (out as? [[String: Any]])?.count ?? 0
     }
 }
 #endif

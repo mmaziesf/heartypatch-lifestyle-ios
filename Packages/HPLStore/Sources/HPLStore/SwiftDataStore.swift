@@ -125,6 +125,27 @@ public final class SwiftDataStore: @unchecked Sendable {
         }
     }
 
+    /// "Delete all" (§10, M7): every record of every model type: aggregates, HealthKit anchors, consents, labs, notes,
+    /// experiments, meals, bridge receipts and pairings, egress log. HealthKit itself is untouched.
+    public func eraseAll() throws {
+        try withContext { ctx in
+            for type in Self.schemaTypes { try Self.delete(type, in: ctx) }
+            try ctx.save()
+        }
+    }
+
+    /// Total rows across every model type (0 after `eraseAll`).
+    public func recordCount() throws -> Int {
+        try withContext { ctx in try Self.schemaTypes.reduce(0) { $0 + (try Self.count($1, in: ctx)) } }
+    }
+
+    public var wipeTarget: any WipeTarget {
+        ClosureWipeTarget(name: "Database", wipe: { try self.eraseAll() }, remaining: { try self.recordCount() })
+    }
+
+    private static func delete<T: PersistentModel>(_ type: T.Type, in ctx: ModelContext) throws { try ctx.delete(model: type) }
+    private static func count<T: PersistentModel>(_ type: T.Type, in ctx: ModelContext) throws -> Int { try ctx.fetchCount(FetchDescriptor<T>()) }
+
     /// One-time move of M0 UserDefaults consents into the protected store; the old key is cleared after a successful copy.
     public func migrateConsents(from legacy: UserDefaultsConsentRepository) throws {
         let old = try legacy.all()

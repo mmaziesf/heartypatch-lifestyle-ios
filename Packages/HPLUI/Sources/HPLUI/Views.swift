@@ -5,9 +5,20 @@ import HPLPipeline
 
 public struct RootView: View {
     var model: AppModel
-    public init(model: AppModel) { self.model = model }
+    /// Called after "Delete all" so the app can rebuild its model from the empty store.
+    let onReset: @MainActor () -> Void
+    public init(model: AppModel, onReset: @escaping @MainActor () -> Void = {}) { self.model = model; self.onReset = onReset }
 
     public var body: some View {
+        content
+            .alert("Delete all data", isPresented: Binding(get: { model.wipeReport != nil }, set: { if !$0 { model.clearWipeReport() } })) {
+                Button("OK") { onReset() }
+            } message: {
+                if let r = model.wipeReport { Text(PrivacyCopy.wipeSummary(r) + " " + PrivacyCopy.deleteHealthAccess) }
+            }
+    }
+
+    @ViewBuilder private var content: some View {
         if model.needsDisclaimer {
             DisclaimerOnboardingView { model.acknowledgeDisclaimer() }
         } else if model.needsHealthPrompt {
@@ -75,7 +86,7 @@ struct MainTabView: View {
 
 struct TodayView: View {
     static let noDataHelp = "Apple Health doesn't tell apps whether access was denied. "
-        + "Check Settings › Health › Data Access & Devices › HP Lifestyle, and make sure your Apple Watch has synced."
+        + "Check Settings › Privacy & Security › Health › HP Lifestyle, and make sure your Apple Watch has synced."
     var model: AppModel
     @Environment(\.openURL) private var openURL
 
@@ -176,6 +187,8 @@ struct MetricRowView: View {
                 Text(note).font(.caption2).foregroundStyle(.secondary)
             }
         }
+        // VoiceOver reads one row as "Sleep, 6h 52m, Typical: 7h 10m" instead of three separate stops.
+        .accessibilityElement(children: .combine)
     }
 }
 
@@ -207,7 +220,11 @@ struct SettingsView: View {
                 }
                 LabeledContent("Stored", value: "Per-day totals only, on this device")
             }
+            ReminderSection(reminders: model.reminders)
             CloudSettingsSection(cloud: model.cloud)
+            YourDataSection(model: model)
+            ConsentsSection(model: model)
+            AboutSection()
         }
         .navigationTitle("Settings")
         .task { await model.refreshEngineStatus() }

@@ -11,7 +11,7 @@ settings:
   base:
     SWIFT_VERSION: "6.0"
     SWIFT_STRICT_CONCURRENCY: complete
-    MARKETING_VERSION: "0.0.1"
+    MARKETING_VERSION: "0.7.0"     # bump CURRENT_PROJECT_VERSION for every TestFlight upload
     CURRENT_PROJECT_VERSION: "1"
     DEVELOPMENT_TEAM: ""          # set your team locally to run on a device
 packages:
@@ -28,7 +28,11 @@ targets:
   HeartyPatchLifestyle:
     type: application
     platform: iOS
-    sources: [App]
+    sources:
+      - path: App
+        excludes: [PrivacyInfo.xcprivacy]
+      - path: App/PrivacyInfo.xcprivacy
+        buildPhase: resources
     dependencies:
       - package: HPLUI
       - package: HPLStore
@@ -77,6 +81,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.hpl.lifestyle
         TARGETED_DEVICE_FAMILY: "1"
         ENABLE_USER_SCRIPT_SANDBOXING: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon   # placeholder icon; replace before App Store submission
 schemes:
   HeartyPatchLifestyle:
     build:
