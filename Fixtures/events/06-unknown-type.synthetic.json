@@ -1,0 +1,18 @@
+{
+  "spec": "hpl.event.v1",
+  "tz": "America/Los_Angeles",
+  "producer": {
+    "name": "visionclaw",
+    "version": "0.0.0-fixture"
+  },
+  "event_id": "01JA0000000000000000000006",
+  "type": "future.thing",
+  "occurred_at": "2026-10-11T22:10:00Z",
+  "payload": {
+    "anything": [
+      1,
+      2,
+      3
+    ]
+  }
+}

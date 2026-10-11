@@ -1,0 +1,33 @@
+{
+  "spec": "hpl.event.v1",
+  "tz": "America/Los_Angeles",
+  "producer": {
+    "name": "visionclaw",
+    "version": "0.0.0-fixture"
+  },
+  "event_id": "01JA0000000000000000000002",
+  "type": "meal.items",
+  "occurred_at": "2026-10-11T19:43:02Z",
+  "session_id": "01JA00000000000000000000S1",
+  "payload": {
+    "items": [
+      {
+        "name": "grilled salmon",
+        "portion_text": "1 fillet",
+        "kcal_est": 350,
+        "protein_g": 34,
+        "confidence": 0.7
+      },
+      {
+        "name": "white rice",
+        "portion_text": "1 cup",
+        "kcal_est": 205,
+        "carbs_g": 45,
+        "confidence": 0.6
+      }
+    ],
+    "tags": [
+      "home-cooked"
+    ]
+  }
+}

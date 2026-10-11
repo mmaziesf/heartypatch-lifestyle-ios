@@ -1,0 +1,30 @@
+included:
+  - App
+  - Packages
+excluded:
+  - Packages/*/.build
+  - Packages/*/.swiftpm
+disabled_rules:
+  - trailing_comma
+  - identifier_name        # short locals (s, e, i) are idiomatic in tight closures
+opt_in_rules:
+  - empty_count
+  - first_where
+  - sorted_first_last
+  - contains_over_filter_count
+  - redundant_nil_coalescing
+line_length:
+  warning: 160
+  error: 200
+  ignores_comments: true
+nesting:
+  type_level: 3
+function_parameter_count:
+  warning: 10
+  error: 12
+custom_rules:
+  no_print:
+    name: "No print()"
+    regex: '(?<![\w.])print\s*\('
+    message: "Use os.Logger with privacy: .private. print() can leak health values."
+    severity: error

@@ -1,0 +1,12 @@
+.DS_Store
+*.xcodeproj/
+Config/Info.plist
+.derived/
+DerivedData/
+.build/
+.swiftpm/
+Packages/*/.build/
+Packages/*/.swiftpm/
+Packages/*/Package.resolved
+xcuserdata/
+__pycache__/

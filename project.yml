@@ -1,0 +1,54 @@
+# XcodeGen spec. Generate the project with:  xcodegen generate
+# (brew install xcodegen). The .xcodeproj is a build artifact and is git-ignored.
+name: HeartyPatchLifestyle
+options:
+  bundleIdPrefix: com.hpl
+  deploymentTarget:
+    iOS: "26.0"
+  createIntermediateGroups: true
+  groupSortPosition: top
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    MARKETING_VERSION: "0.0.1"
+    CURRENT_PROJECT_VERSION: "1"
+    DEVELOPMENT_TEAM: ""          # set your team locally to run on a device
+packages:
+  HPLCore: { path: Packages/HPLCore }
+  HPLStore: { path: Packages/HPLStore }
+  HPLHealth: { path: Packages/HPLHealth }
+  HPLIngest: { path: Packages/HPLIngest }
+  HPLInference: { path: Packages/HPLInference }
+  HPLPipeline: { path: Packages/HPLPipeline }
+  HPLBridge: { path: Packages/HPLBridge }
+  HPLCloud: { path: Packages/HPLCloud }
+  HPLUI: { path: Packages/HPLUI }
+targets:
+  HeartyPatchLifestyle:
+    type: application
+    platform: iOS
+    sources: [App]
+    dependencies:
+      - package: HPLUI
+      - package: HPLStore
+    info:
+      path: Config/Info.plist
+      properties:
+        CFBundleDisplayName: HP Lifestyle
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        ITSAppUsesNonExemptEncryption: false
+        # HealthKit usage strings + entitlements land in M1 (architecture §9.3).
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.hpl.lifestyle
+        TARGETED_DEVICE_FAMILY: "1"
+        ENABLE_USER_SCRIPT_SANDBOXING: YES
+schemes:
+  HeartyPatchLifestyle:
+    build:
+      targets:
+        HeartyPatchLifestyle: all
+    run:
+      config: Debug

@@ -1,0 +1,15 @@
+{
+  "spec": "hpl.event.v1",
+  "tz": "America/Los_Angeles",
+  "producer": {
+    "name": "visionclaw",
+    "version": "0.0.0-fixture"
+  },
+  "event_id": "01JA0000000000000000000005",
+  "type": "voice.note",
+  "occurred_at": "2026-10-11T22:00:00Z",
+  "payload": {
+    "text": "low energy after dinner",
+    "intent": "energy"
+  }
+}

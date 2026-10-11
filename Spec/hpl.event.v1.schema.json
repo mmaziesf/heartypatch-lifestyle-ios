@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://heartypatch-lifestyle.local/spec/hpl.event.v1.schema.json",
+  "title": "HPL Event API v1 envelope",
+  "description": "Events produced by VisionClaw (or manual import) for the Glasses Bridge. Architecture §8.2. Unknown types are schema-valid and stored as ignored by HPL; known types have their payload validated. HMAC signature travels in headers (X-HPL-Signature / X-HPL-Timestamp), not in the body.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["spec", "event_id", "type", "occurred_at", "tz", "producer", "payload"],
+  "properties": {
+    "spec": { "const": "hpl.event.v1" },
+    "event_id": { "type": "string", "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$", "description": "ULID; idempotency key" },
+    "type": { "type": "string", "pattern": "^[a-z]+(\\.[a-z_]+)*$" },
+    "occurred_at": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$", "description": "UTC, second precision" },
+    "tz": { "type": "string", "pattern": "^[A-Za-z_]+(/[A-Za-z0-9_+\\-]+)*$", "description": "IANA zone at event time" },
+    "producer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^[a-z0-9_\\-]{1,32}$" },
+        "version": { "type": "string", "maxLength": 32 }
+      }
+    },
+    "session_id": { "type": ["string", "null"], "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$" },
+    "payload": { "type": "object" }
+  },
+  "allOf": [
+    { "if": { "properties": { "type": { "const": "meal.start" } } },
+      "then": { "required": ["session_id"], "properties": { "payload": { "$ref": "#/$defs/mealStart" } } } },
+    { "if": { "properties": { "type": { "const": "meal.items" } } },
+      "then": { "required": ["session_id"], "properties": { "payload": { "$ref": "#/$defs/mealItems" } } } },
+    { "if": { "properties": { "type": { "const": "meal.photo" } } },
+      "then": { "required": ["session_id"], "properties": { "payload": { "$ref": "#/$defs/mealPhoto" } } } },
+    { "if": { "properties": { "type": { "const": "meal.end" } } },
+      "then": { "required": ["session_id"], "properties": { "payload": { "$ref": "#/$defs/empty" } } } },
+    { "if": { "properties": { "type": { "const": "voice.note" } } },
+      "then": { "properties": { "payload": { "$ref": "#/$defs/voiceNote" } } } },
+    { "if": { "properties": { "type": { "const": "lifestyle.event" } } },
+      "then": { "properties": { "payload": { "$ref": "#/$defs/lifestyleEvent" } } } },
+    { "if": { "properties": { "type": { "const": "ping" } } },
+      "then": { "properties": { "payload": { "$ref": "#/$defs/empty" } } } }
+  ],
+  "$defs": {
+    "empty": { "type": "object", "maxProperties": 0 },
+    "mealStart": {
+      "type": "object", "additionalProperties": false, "required": ["trigger"],
+      "properties": { "trigger": { "enum": ["voice", "vision", "manual"] } }
+    },
+    "mealItems": {
+      "type": "object", "additionalProperties": false, "required": ["items"],
+      "properties": {
+        "items": {
+          "type": "array", "minItems": 1, "maxItems": 50,
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["name", "confidence"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1, "maxLength": 80 },
+              "portion_text": { "type": ["string", "null"], "maxLength": 80 },
+              "kcal_est": { "type": ["number", "null"], "minimum": 0 },
+              "protein_g": { "type": ["number", "null"], "minimum": 0 },
+              "carbs_g": { "type": ["number", "null"], "minimum": 0 },
+              "fat_g": { "type": ["number", "null"], "minimum": 0 },
+              "fiber_g": { "type": ["number", "null"], "minimum": 0 },
+              "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+            }
+          }
+        },
+        "tags": { "type": "array", "uniqueItems": true, "items": { "enum": ["late", "alcohol", "high-sugar", "high-protein", "high-fiber", "home-cooked", "restaurant", "caffeine", "processed"] } }
+      }
+    },
+    "mealPhoto": {
+      "type": "object", "additionalProperties": false, "required": ["photo_ref", "sha256", "width", "height"],
+      "properties": {
+        "photo_ref": { "type": "string", "maxLength": 256 },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "width": { "type": "integer", "minimum": 1, "maximum": 8192 },
+        "height": { "type": "integer", "minimum": 1, "maximum": 8192 }
+      }
+    },
+    "voiceNote": {
+      "type": "object", "additionalProperties": false, "required": ["text"],
+      "properties": {
+        "text": { "type": "string", "minLength": 1, "maxLength": 1000 },
+        "intent": { "enum": ["craving", "mood", "energy", "symptom", "other", null] }
+      }
+    },
+    "lifestyleEvent": {
+      "type": "object", "additionalProperties": false, "required": ["kind"],
+      "properties": {
+        "kind": { "enum": ["caffeine", "alcohol", "water", "sunlight", "screen_late", "custom"] },
+        "amount": { "type": ["number", "null"], "minimum": 0 },
+        "unit": { "type": ["string", "null"], "maxLength": 16 }
+      }
+    }
+  }
+}

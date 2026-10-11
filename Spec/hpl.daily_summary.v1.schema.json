@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://heartypatch-lifestyle.local/spec/hpl.daily_summary.v1.schema.json",
+  "title": "HPL DailySummary v1",
+  "description": "The only input the insight engines (rules / on-device LLM) see. No names, documents, locations, free text or raw sample streams. Architecture §6.4.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "provenance", "day", "day_of_week", "workouts", "meals", "labs_recent", "rule_hits", "active_experiments", "completeness"],
+  "properties": {
+    "schema": { "const": "hpl.daily_summary.v1" },
+    "provenance": {
+      "description": "device = built from the user's HealthKit/labs/meals; synthetic_fixture = labeled test data, never the user's.",
+      "enum": ["device", "synthetic_fixture"]
+    },
+    "day": { "type": "string", "pattern": "^(D(0|-[1-9][0-9]*)|[0-9]{4}-[0-9]{2}-[0-9]{2})$" },
+    "day_of_week": { "enum": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "age_band": { "type": ["string", "null"], "pattern": "^([0-9]{2}-[0-9]{2}|80\\+)$" },
+        "sex_for_ranges": { "enum": ["M", "F", null] }
+      }
+    },
+    "sleep": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "total_min": { "$ref": "#/$defs/nonNegIntOrNull" },
+        "deep_min": { "$ref": "#/$defs/nonNegIntOrNull" },
+        "rem_min": { "$ref": "#/$defs/nonNegIntOrNull" },
+        "awake_min": { "$ref": "#/$defs/nonNegIntOrNull" },
+        "bed_local": { "$ref": "#/$defs/hhmmOrNull" },
+        "wake_local": { "$ref": "#/$defs/hhmmOrNull" },
+        "baseline_28d": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "total_min_median": { "$ref": "#/$defs/nonNegNumberOrNull" },
+            "deep_min_median": { "$ref": "#/$defs/nonNegNumberOrNull" }
+          }
+        }
+      }
+    },
+    "heart": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "resting_hr": { "$ref": "#/$defs/nonNegNumberOrNull" },
+        "resting_hr_28d_median": { "$ref": "#/$defs/nonNegNumberOrNull" },
+        "hrv_sdnn_ms_overnight_median": { "$ref": "#/$defs/nonNegNumberOrNull" },
+        "hrv_28d_p10": { "$ref": "#/$defs/nonNegNumberOrNull" },
+        "hrv_28d_median": { "$ref": "#/$defs/nonNegNumberOrNull" }
+      }
+    },
+    "activity": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "steps": { "$ref": "#/$defs/nonNegIntOrNull" },
+        "steps_28d_median": { "$ref": "#/$defs/nonNegNumberOrNull" },
+        "active_kcal": { "$ref": "#/$defs/nonNegNumberOrNull" },
+        "exercise_min": { "$ref": "#/$defs/nonNegIntOrNull" },
+        "stand_hours": { "type": ["integer", "null"], "minimum": 0, "maximum": 24 }
+      }
+    },
+    "workouts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["type", "duration_min"],
+        "properties": {
+          "type": { "enum": ["running", "cycling", "strength", "walking", "yoga", "swimming", "hiit", "other"] },
+          "duration_min": { "type": "integer", "minimum": 0 },
+          "avg_hr": { "$ref": "#/$defs/nonNegNumberOrNull" },
+          "zone_minutes": { "type": "array", "items": { "type": "integer", "minimum": 0 }, "minItems": 5, "maxItems": 5 }
+        }
+      }
+    },
+    "meals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["t_local", "label", "tags"],
+        "properties": {
+          "t_local": { "$ref": "#/$defs/hhmm" },
+          "label": { "enum": ["breakfast", "lunch", "dinner", "snack", "drink", "meal"] },
+          "tags": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/mealTag" } }
+        }
+      }
+    },
+    "labs_recent": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["analyte", "unit", "age_days"],
+        "properties": {
+          "analyte": { "type": "string", "pattern": "^[a-z0-9_]+$" },
+          "value": { "type": ["number", "null"] },
+          "unit": { "type": "string", "minLength": 1, "maxLength": 16 },
+          "ref_low": { "type": ["number", "null"] },
+          "ref_high": { "type": ["number", "null"] },
+          "report_flag": { "enum": ["H", "L", "HH", "LL", "A", null] },
+          "age_days": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "rule_hits": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[A-Z0-9_]+$" } },
+    "active_experiments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "intervention", "day", "of"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^E[0-9]+$" },
+          "intervention": { "type": "string", "minLength": 1, "maxLength": 80 },
+          "day": { "type": "integer", "minimum": 1 },
+          "of": { "type": "integer", "minimum": 1 }
+        }
+      }
+    },
+    "completeness": { "type": "number", "minimum": 0, "maximum": 1 }
+  },
+  "$defs": {
+    "nonNegIntOrNull": { "type": ["integer", "null"], "minimum": 0 },
+    "nonNegNumberOrNull": { "type": ["number", "null"], "minimum": 0 },
+    "hhmm": { "type": "string", "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$" },
+    "hhmmOrNull": { "anyOf": [ { "$ref": "#/$defs/hhmm" }, { "type": "null" } ] },
+    "mealTag": { "enum": ["late", "alcohol", "high-sugar", "high-protein", "high-fiber", "home-cooked", "restaurant", "caffeine", "processed"] }
+  }
+}

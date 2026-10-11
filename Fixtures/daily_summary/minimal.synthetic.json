@@ -1,0 +1,12 @@
+{
+  "schema": "hpl.daily_summary.v1",
+  "provenance": "synthetic_fixture",
+  "day": "2026-10-10",
+  "day_of_week": "Sat",
+  "workouts": [],
+  "meals": [],
+  "labs_recent": [],
+  "rule_hits": [],
+  "active_experiments": [],
+  "completeness": 0.0
+}
