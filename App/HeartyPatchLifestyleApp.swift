@@ -44,7 +44,7 @@ enum AppBootstrap {
             let health = HealthServices(source: HealthKitDataSource(), aggregates: store.aggregates, syncState: store.syncState)
             let importer = LabImporter(repository: store.labs, files: try ProtectedLabFileStore(), extractor: OnDeviceLabExtractor())
             return AppModel(consents: store.consents, health: health, labs: LabServices(importer: importer, repository: store.labs),
-                            pipeline: DailyPipeline(engine: InsightEngines.preferred()))
+                            insights: store.insights, pipeline: DailyPipeline(engine: InsightEngines.preferred()))
         } catch {
             // Data Protection: the store is unreadable until first unlock. No HealthKit work this launch (§10 DECISION: defer).
             return AppModel(consents: legacy, health: nil, pipeline: DailyPipeline(engine: InsightEngines.preferred()), isDegraded: true)

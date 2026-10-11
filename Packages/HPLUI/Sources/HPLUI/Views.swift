@@ -67,7 +67,7 @@ struct MainTabView: View {
             Tab("Today", systemImage: "sun.max") { NavigationStack { TodayView(model: model) } }
             Tab("Labs", systemImage: "testtube.2") { NavigationStack { LabsView(labs: model.labs) } }
             Tab("Meals", systemImage: "fork.knife") { Placeholder(title: "Meals", detail: "Manual + Ray-Ban (VisionClaw) meal logs arrive in M5.") }
-            Tab("Insights", systemImage: "lightbulb") { Placeholder(title: "Insights", detail: "Recommendation history and experiments arrive in M4.") }
+            Tab("Insights", systemImage: "lightbulb") { NavigationStack { InsightsView(insights: model.insights) } }
             Tab("Settings", systemImage: "gearshape") { NavigationStack { SettingsView(model: model) } }
         }
     }
@@ -106,11 +106,20 @@ struct TodayView: View {
                 Section(model.todaySource == .device ? "Today vs your 28-day typical" : "Example metrics") {
                     ForEach(model.todayMetrics) { MetricRowView(row: $0) }
                 }
+                if let active = model.insights.activeExperiment {
+                    Section("Your experiment") { ExperimentCard(experiment: active, insights: model.insights) }
+                }
                 Section("Today's notes") {
-                    if model.recommendations.isEmpty {
+                    if let notice = model.insights.notice {
+                        Label(notice, systemImage: "info.circle").font(.footnote)
+                    }
+                    if model.insights.today.isEmpty {
                         Text("Nothing notable today.").foregroundStyle(.secondary)
                     }
-                    ForEach(model.recommendations) { RecommendationRow(rec: $0) }
+                    ForEach(model.insights.today) { NoteCard(note: $0, insights: model.insights) }
+                    if model.insights.isExample {
+                        Text("Example notes: actions here aren't saved.").font(.caption).foregroundStyle(.secondary)
+                    }
                 }
             }
             Section { Text(Disclaimer.footer).font(.caption).foregroundStyle(.secondary) }
@@ -167,33 +176,6 @@ struct MetricRowView: View {
                 Text(note).font(.caption2).foregroundStyle(.secondary)
             }
         }
-    }
-}
-
-struct RecommendationRow: View {
-    let rec: Recommendation
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(rec.kind.rawValue.replacingOccurrences(of: "_", with: " ").uppercased())
-                .font(.caption2.bold()).foregroundStyle(.secondary)
-            Text(rec.title).font(.headline)
-            Text(rec.body).font(.subheadline)
-            if let e = rec.experiment {
-                Label("Try for \(e.durationDays) days: \(e.intervention). Compare \(e.metricFieldPath).", systemImage: "flask")
-                    .font(.caption).foregroundStyle(.secondary)
-            }
-            DisclosureGroup("Why am I seeing this?") {
-                ForEach(rec.evidence, id: \.self) { e in
-                    LabeledContent(e.fieldPath, value: e.value.display)
-                        .font(.caption.monospaced())
-                }
-                Text("Engine: \(rec.generator.engine.rawValue) · \(rec.generator.promptVersion)").font(.caption2)
-                Text(Disclaimer.footer).font(.caption2).foregroundStyle(.secondary)
-            }
-            .font(.caption)
-        }
-        .padding(.vertical, 4)
     }
 }
 

@@ -1,11 +1,11 @@
-# HeartyPatch Lifestyle (M3 scaffold)
+# HeartyPatch Lifestyle (M4)
 
 Local-first iOS app: Apple Watch / HealthKit + your confirmed blood work (+ Ray-Ban meal logs later) → an on-device daily summary → coaching-style lifestyle notes and self-experiments.
 
 > **Not medical advice.** HeartyPatch Lifestyle provides general wellness information and self-experiment ideas based on data you choose to share with it. It is not a medical device and does not diagnose, treat, cure, or prevent any disease or provide medical advice. Lab values are shown as printed on your report; we do not interpret them. Talk to a qualified clinician about any health concern or before changing medications, diet, or exercise in significant ways. If you think you may have a medical emergency, call your local emergency number.
 
 - Architecture: [`docs/architecture.md`](docs/architecture.md) (one-page: [`docs/architecture-SUMMARY.md`](docs/architecture-SUMMARY.md))
-- Milestone: **M0 done; M1 (HealthKit daily aggregates) code landed, awaiting on-device validation. M2 (lab import) scaffold landed; accuracy gate needs real redacted reports. M3 (on-device notes: Apple Foundation Models + rules fallback, output guard, eval harness) scaffold landed; FM eval needs an Apple Intelligence device.** See [`docs/m1-healthkit.md`](docs/m1-healthkit.md), [`docs/m2-labs.md`](docs/m2-labs.md) and [`docs/m3-llm.md`](docs/m3-llm.md).
+- Milestone: **M0 done; M1 (HealthKit daily aggregates) code landed, awaiting on-device validation. M2 (lab import) scaffold landed; accuracy gate needs real redacted reports. M3 (on-device notes: Apple Foundation Models + rules fallback, output guard, eval harness) scaffold landed; FM eval needs an Apple Intelligence device. M4 (note actions, "Why am I seeing this?", persistent history + JSON export, 7/14-day N-of-1 experiments) landed.** See [`docs/m1-healthkit.md`](docs/m1-healthkit.md), [`docs/m2-labs.md`](docs/m2-labs.md), [`docs/m3-llm.md`](docs/m3-llm.md) and [`docs/m4-insights.md`](docs/m4-insights.md).
 
 ## What M0 does
 
@@ -53,14 +53,14 @@ The SwiftUI views (`HPLUI/Views.swift`) compile only on Apple platforms. Everyth
 App/                 @main SwiftUI entry (target defined in project.yml)
 Packages/
   HPLCore            DailySummaryV1, HPLEventV1, JSONValue, Recommendation, Consent, Disclaimer, labeled fixtures
-  HPLStore           SwiftData store (aggregates, sync anchors, consents; FileProtection complete) + in-memory impls
+  HPLStore           SwiftData store (aggregates, sync anchors, consents, labs, notes + experiments; FileProtection complete) + in-memory impls
   HPLHealth          HealthKit read: auth, statistics/anchored/observer queries, sleep + HRV aggregators, HealthSyncEngine
   HPLIngest          Lab import: PDFKit/Vision extraction, rules parser, analyte dictionary, review session, SHA-256 dedupe (M2)
   HPLInference       InsightEngine, FoundationModelsEngine, RulesOnlyEngine, prompt contract + sanitizer, NotesOutputV1, OutputGuard
-  HPLPipeline        SummaryBuilder (aggregates -> DailySummary v1, 28d baselines), RulesEngine (13 rules), DailyPipeline (fallback/rewrite/report), EvalHarness + 50 EvalFixtures
+  HPLPipeline        SummaryBuilder (aggregates -> DailySummary v1, 28d baselines), RulesEngine (13 rules), DailyPipeline (fallback/rewrite/report/context), EvalHarness + 50 EvalFixtures, NoteLedger, ExperimentTracker
   HPLBridge          EventInbox: decode, idempotency, unknown-type ignore (HMAC in M5)
   HPLCloud           EgressGate, hard-disabled until M6
-  HPLUI              AppModel + SwiftUI shell
+  HPLUI              AppModel, LabsModel, InsightsModel + SwiftUI (Today cards, evidence view, Labs, Insights)
 Spec/                hpl.daily_summary.v1.schema.json, hpl.event.v1.schema.json (JSON Schema 2020-12)
 Fixtures/            synthetic valid fixtures + deliberately invalid ones
 scripts/             test/validate/CI helpers

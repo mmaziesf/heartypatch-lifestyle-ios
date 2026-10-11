@@ -1,6 +1,6 @@
 import Foundation
 
-public enum RecommendationKind: String, Codable, Sendable { case observation, experiment, nudge, clinicianPrompt = "clinician_prompt" }
+public enum RecommendationKind: String, Codable, Sendable, CaseIterable { case observation, experiment, nudge, clinicianPrompt = "clinician_prompt" }
 
 /// A deterministic rule that fired, with the summary fields that justify it.
 public struct RuleHit: Codable, Sendable, Hashable {

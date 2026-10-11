@@ -54,6 +54,7 @@ public final class AppModel {
     public private(set) var healthPromptDismissed = false
     public let isDegraded: Bool
     public let labs: LabsModel
+    public let insights: InsightsModel
     public private(set) var engineStatus = "Checking…"
     public private(set) var evalReport: EvalHarness.Report?
     public private(set) var isRunningEval = false
@@ -67,11 +68,15 @@ public final class AppModel {
     private var observing = false
 
     public init(consents: any ConsentRepository, health: HealthServices? = nil, labs: LabServices? = nil,
-                pipeline: DailyPipeline = DailyPipeline(), isDegraded: Bool = false, now: @escaping @Sendable () -> Date = Date.init) {
+                insights: (any InsightsRepository)? = nil, pipeline: DailyPipeline = DailyPipeline(), isDegraded: Bool = false,
+                now: @escaping @Sendable () -> Date = Date.init) {
         self.consents = consents
         self.health = health
         self.labs = LabsModel(services: labs, calendar: health?.calendar ?? .hplLocal())
         labRepository = labs?.repository
+        let calendar = health?.calendar ?? .hplLocal()
+        let metrics = health.map { SummaryMetricSource(builder: SummaryBuilder(aggregates: $0.aggregates, labs: labs?.repository, calendar: calendar)) }
+        self.insights = InsightsModel(repository: insights, metrics: metrics, calendar: calendar, now: now)
         self.pipeline = pipeline
         self.isDegraded = isDegraded
         self.now = now
@@ -135,10 +140,13 @@ public final class AppModel {
         await sync(health)
         do {
             let today = LocalDay(now(), calendar: health.calendar)
-            if let s = try SummaryBuilder(aggregates: health.aggregates, labs: labRepository, calendar: health.calendar).build(day: today) {
+            insights.begin(example: false)
+            if var s = try SummaryBuilder(aggregates: health.aggregates, labs: labRepository, calendar: health.calendar).build(day: today) {
+                s.activeExperiments = insights.activeExperimentEntry().map { [$0] } ?? []
                 summary = s
                 todaySource = .device
-                recommendations = try await pipeline.run(s)
+                recommendations = try await pipeline.run(s, context: insights.context())
+                insights.record(recommendations)
             } else {
                 summary = nil
                 recommendations = []
@@ -188,10 +196,13 @@ public final class AppModel {
 
     private func loadFixture() async {
         do {
-            let s = try SyntheticFixtures.dailySummaryD0()
+            var s = try SyntheticFixtures.dailySummaryD0()
+            insights.begin(example: true)
+            if let entry = insights.activeExperimentEntry() { s.activeExperiments = [entry] }
             summary = s
             todaySource = .syntheticFixture
-            recommendations = try await pipeline.run(s)
+            recommendations = try await pipeline.run(s, context: insights.context())
+            insights.record(recommendations)
         } catch {
             errorMessage = "Could not build today's notes."
         }

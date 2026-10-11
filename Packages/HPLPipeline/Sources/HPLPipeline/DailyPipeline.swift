@@ -27,16 +27,18 @@ public struct DailyPipeline: Sendable {
         public var latency: Duration
     }
 
-    public func run(_ input: DailySummaryV1) async throws -> [Recommendation] { try await runDetailed(input).recommendations }
+    public func run(_ input: DailySummaryV1, context: PipelineContext = .init()) async throws -> [Recommendation] {
+        try await runDetailed(input, context: context).recommendations
+    }
 
-    public func runDetailed(_ input: DailySummaryV1) async throws -> Report {
+    public func runDetailed(_ input: DailySummaryV1, context: PipelineContext = .init()) async throws -> Report {
         let hits = RulesEngine.evaluate(input)
         var summary = input
         summary.ruleHits = hits.map(\.id)
         let tree = try summary.jsonTree()
 
         let fixed = hits.filter { RuleID.isClinicianPrompt($0.id) }.compactMap { fallback.draft(for: $0, summary) }
-        let open = hits.filter { !RuleID.isClinicianPrompt($0.id) }
+        let open = context.arrange(hits.filter { !RuleID.isClinicianPrompt($0.id) }) { InsightTopic.key($0.evidenceFieldPaths) }
 
         let clock = ContinuousClock()
         let start = clock.now
@@ -66,7 +68,8 @@ public struct DailyPipeline: Sendable {
             outcomes.append(.init(draft: draft, verdict: verdict))
             if let rec = accept(draft, verdict, used: source, hits: open, summary: summary, tree: tree) { recs.append(rec) }
         }
-        return Report(recommendations: Array(dedupe(recs).prefix(Self.maxRecommendations)), engineID: used.id,
+        let arranged = recs.filter { $0.kind == .clinicianPrompt } + context.arrange(recs.filter { $0.kind != .clinicianPrompt }) { $0.topic }
+        return Report(recommendations: Array(dedupe(arranged).prefix(Self.maxRecommendations)), engineID: used.id,
                       fallbackReason: fallbackReason, drafts: outcomes, latency: latency)
     }
 
@@ -92,5 +95,22 @@ public struct DailyPipeline: Sendable {
     private func dedupe(_ recs: [Recommendation]) -> [Recommendation] {
         var seen: Set<String> = []
         return recs.filter { seen.insert($0.title).inserted }
+    }
+}
+
+/// What the user did with earlier notes, applied before the 3-note cap (M4: dismissed topics are de-prioritized;
+/// snoozed topics are hidden until the snooze ends). Clinician prompts are never affected.
+public struct PipelineContext: Sendable, Equatable {
+    public var deprioritizedTopics: Set<String>
+    public var suppressedTopics: Set<String>
+
+    public init(deprioritizedTopics: Set<String> = [], suppressedTopics: Set<String> = []) {
+        self.deprioritizedTopics = deprioritizedTopics; self.suppressedTopics = suppressedTopics
+    }
+
+    /// Drops suppressed topics and moves de-prioritized ones to the end, keeping order otherwise.
+    func arrange<T>(_ items: [T], topic: (T) -> String) -> [T] {
+        let kept = items.filter { !suppressedTopics.contains(topic($0)) }
+        return kept.filter { !deprioritizedTopics.contains(topic($0)) } + kept.filter { deprioritizedTopics.contains(topic($0)) }
     }
 }
