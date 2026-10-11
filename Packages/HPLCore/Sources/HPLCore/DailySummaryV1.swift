@@ -9,6 +9,7 @@ public struct DailySummaryV1: Codable, Sendable, Equatable {
     public struct Profile: Codable, Sendable, Equatable {
         public var ageBand: String?
         public var sexForRanges: String?
+        public init(ageBand: String? = nil, sexForRanges: String? = nil) { self.ageBand = ageBand; self.sexForRanges = sexForRanges }
         enum CodingKeys: String, CodingKey { case ageBand = "age_band", sexForRanges = "sex_for_ranges" }
     }
 
@@ -88,6 +89,7 @@ public struct DailySummaryV1: Codable, Sendable, Equatable {
         public var tLocal: String
         public var label: String
         public var tags: [String]
+        public init(tLocal: String, label: String, tags: [String]) { self.tLocal = tLocal; self.label = label; self.tags = tags }
         enum CodingKeys: String, CodingKey { case tLocal = "t_local", label, tags }
     }
 
@@ -113,6 +115,7 @@ public struct DailySummaryV1: Codable, Sendable, Equatable {
         public var intervention: String
         public var day: Int
         public var of: Int
+        public init(id: String, intervention: String, day: Int, of: Int) { self.id = id; self.intervention = intervention; self.day = day; self.of = of }
     }
 
     public var schema: String

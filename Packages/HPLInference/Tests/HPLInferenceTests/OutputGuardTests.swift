@@ -38,6 +38,43 @@ import HPLCore
         #expect(guardrail.check(draft("ok", paths: []), against: summary).result == .blocked)
     }
 
+    @Test func ordinaryWordsAreNotBlocked() {
+        #expect(guardrail.check(draft("A brisk walk counts; steps were 4210."), against: summary).result == .pass)
+    }
+
+    @Test func experimentProposalsAreChecked() {
+        func exp(_ intervention: String, _ days: Int, _ metric: String) -> RecommendationDraft {
+            .init(kind: .experiment, title: "t", body: "You slept 352 min.", evidenceFieldPaths: ["sleep.total_min"],
+                  experiment: .init(intervention: intervention, durationDays: days, metricFieldPath: metric))
+        }
+        #expect(guardrail.check(exp("Lights out earlier", 7, "sleep.total_min"), against: summary).result == .pass)
+        #expect(guardrail.check(exp("Lights out earlier", 30, "sleep.total_min"), against: summary).result == .blocked)
+        #expect(guardrail.check(exp("Lights out earlier", 14, "sleep.nope"), against: summary).result == .blocked)
+        #expect(guardrail.check(exp("Lights out earlier", 14, "meals.1.tags"), against: summary).result == .blocked)
+        #expect(guardrail.check(exp("Take melatonin before bed", 14, "sleep.total_min"), against: summary).result == .blocked)
+        #expect(guardrail.check(exp("Sleep 45 minutes more", 14, "sleep.total_min"), against: summary).result == .blocked)
+    }
+
+    @Test func clinicianPromptMustBeFixedCopy() {
+        let paths = ["labs_recent.0.analyte"]
+        let fixed = RecommendationDraft(kind: .clinicianPrompt, title: "x", body: RuleTemplates.clinicianCopy, evidenceFieldPaths: paths)
+        let written = RecommendationDraft(kind: .clinicianPrompt, title: "x", body: "Please see someone about this.", evidenceFieldPaths: paths)
+        #expect(guardrail.check(fixed, against: summary).result == .pass)
+        #expect(guardrail.check(written, against: summary).reasons == ["clinician prompt not fixed copy"])
+    }
+
+    @Test func numberOnlyFailuresAreFlaggedForRewrite() {
+        #expect(guardrail.check(draft("You slept 512 min."), against: summary).failedOnlyOnNumbers)
+        #expect(!guardrail.check(draft("You slept 512 min and may have apnea."), against: summary).failedOnlyOnNumbers)
+    }
+
+    @Test func everyRuleHasATemplate() {
+        let ids = [RuleID.sleepShort, RuleID.deepSleepLow, RuleID.bedtimeLate, RuleID.hrvLow, RuleID.restingHRHigh, RuleID.stepsLow,
+                   RuleID.stepsHigh, RuleID.noExercise, RuleID.hardWorkout, RuleID.lateMealAlcohol, RuleID.experimentActive,
+                   RuleID.lowCompleteness, RuleID.clinicianLabCritical]
+        #expect(Set(RuleTemplates.all.keys) == Set(ids))
+    }
+
     @Test func rulesEngineTemplatesPassGuard() async throws {
         let s = try SyntheticFixtures.dailySummaryD0()
         let hits = [

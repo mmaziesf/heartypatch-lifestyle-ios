@@ -9,14 +9,29 @@ public struct RuleHit: Codable, Sendable, Hashable {
     public init(id: String, evidenceFieldPaths: [String]) { self.id = id; self.evidenceFieldPaths = evidenceFieldPaths }
 }
 
+/// An N-of-1 self-experiment idea: one behaviour change, a fixed window, one summary metric to compare
+/// (baseline window vs intervention window). Tracking/results arrive in M4.
+public struct ExperimentProposal: Codable, Sendable, Equatable, Hashable {
+    public static let allowedDurations: Set<Int> = [7, 14]
+    public var intervention: String
+    public var durationDays: Int
+    /// Summary field path compared before vs during, e.g. `sleep.total_min`.
+    public var metricFieldPath: String
+    public init(intervention: String, durationDays: Int, metricFieldPath: String) {
+        self.intervention = intervention; self.durationDays = durationDays; self.metricFieldPath = metricFieldPath
+    }
+    enum CodingKeys: String, CodingKey { case intervention, durationDays = "duration_days", metricFieldPath = "metric_field_path" }
+}
+
 /// Engine output before the output guard.
 public struct RecommendationDraft: Codable, Sendable, Equatable {
     public var kind: RecommendationKind
     public var title: String
     public var body: String
     public var evidenceFieldPaths: [String]
-    public init(kind: RecommendationKind, title: String, body: String, evidenceFieldPaths: [String]) {
-        self.kind = kind; self.title = title; self.body = body; self.evidenceFieldPaths = evidenceFieldPaths
+    public var experiment: ExperimentProposal?
+    public init(kind: RecommendationKind, title: String, body: String, evidenceFieldPaths: [String], experiment: ExperimentProposal? = nil) {
+        self.kind = kind; self.title = title; self.body = body; self.evidenceFieldPaths = evidenceFieldPaths; self.experiment = experiment
     }
 }
 
@@ -48,14 +63,15 @@ public struct Recommendation: Codable, Sendable, Identifiable, Equatable {
     public var title: String
     public var body: String
     public var evidence: [EvidenceRef]
+    public var experiment: ExperimentProposal?
     public var generator: Generator
     public var guardResult: GuardResult
     public var provenance: DailySummaryV1.Provenance
 
     public init(id: UUID = UUID(), day: String, kind: RecommendationKind, title: String, body: String,
-                evidence: [EvidenceRef], generator: Generator, guardResult: GuardResult,
+                evidence: [EvidenceRef], experiment: ExperimentProposal? = nil, generator: Generator, guardResult: GuardResult,
                 provenance: DailySummaryV1.Provenance) {
         self.id = id; self.day = day; self.kind = kind; self.title = title; self.body = body
-        self.evidence = evidence; self.generator = generator; self.guardResult = guardResult; self.provenance = provenance
+        self.evidence = evidence; self.experiment = experiment; self.generator = generator; self.guardResult = guardResult; self.provenance = provenance
     }
 }

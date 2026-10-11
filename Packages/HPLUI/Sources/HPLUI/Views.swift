@@ -1,6 +1,7 @@
 #if canImport(SwiftUI)
 import SwiftUI
 import HPLCore
+import HPLPipeline
 
 public struct RootView: View {
     var model: AppModel
@@ -178,6 +179,10 @@ struct RecommendationRow: View {
                 .font(.caption2.bold()).foregroundStyle(.secondary)
             Text(rec.title).font(.headline)
             Text(rec.body).font(.subheadline)
+            if let e = rec.experiment {
+                Label("Try for \(e.durationDays) days: \(e.intervention). Compare \(e.metricFieldPath).", systemImage: "flask")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
             DisclosureGroup("Why am I seeing this?") {
                 ForEach(rec.evidence, id: \.self) { e in
                     LabeledContent(e.fieldPath, value: e.value.display)
@@ -204,7 +209,14 @@ struct SettingsView: View {
                 }
                 LabeledContent("Version", value: Disclaimer.version)
             }
-            Section("Engine") { LabeledContent("Insights", value: "Rules only (\(model.engineName))") }
+            Section("Engine") {
+                LabeledContent("Insights", value: model.engineStatus)
+                Text("Notes are written on this device from your daily summary only, then checked by fixed safety rules.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+            #if DEBUG
+            EvalSection(model: model)
+            #endif
             Section("Data") {
                 LabeledContent("Apple Health", value: healthLabel)
                 if model.healthStatus == .notConnected {
@@ -215,6 +227,7 @@ struct SettingsView: View {
             }
         }
         .navigationTitle("Settings")
+        .task { await model.refreshEngineStatus() }
     }
 
     private var healthLabel: String {
@@ -228,6 +241,33 @@ struct SettingsView: View {
         }
     }
 }
+
+#if DEBUG
+/// Developer-only: score the live engine on the synthetic eval set (architecture §11 M3 gate) and record latency on this device.
+struct EvalSection: View {
+    var model: AppModel
+
+    var body: some View {
+        Section("Developer: insight eval") {
+            Button(model.isRunningEval ? "Running…" : "Run on \(EvalFixtures.count) synthetic days") { Task { await model.runInsightEval() } }
+                .disabled(model.isRunningEval)
+            if let r = model.evalReport {
+                LabeledContent("Engine", value: "\(r.engineID) · \(r.promptVersion)")
+                LabeledContent("Gate", value: r.meetsM3Gate ? "PASS" : r.gateFailures.joined(separator: "; "))
+                LabeledContent("Schema-valid", value: r.schemaValidRate.formatted(.percent))
+                LabeledContent("Numbers traceable", value: r.numericTraceableRate.formatted(.percent))
+                LabeledContent("Fallbacks / blocked / rewritten", value: "\(r.fallbacks) / \(r.draftsBlocked) / \(r.notesRewritten)")
+                LabeledContent("Latency median / p90", value: latency(r))
+            }
+        }
+    }
+
+    private func latency(_ r: EvalHarness.Report) -> String {
+        guard let median = r.medianLatencyMs, let p90 = r.p90LatencyMs else { return "n/a" }
+        return "\(Int(median)) ms / \(Int(p90)) ms"
+    }
+}
+#endif
 
 struct Placeholder: View {
     let title: String

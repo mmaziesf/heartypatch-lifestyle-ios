@@ -18,8 +18,13 @@ import HPLInference
     @Test func quietDayProducesNothing() async throws {
         var s = try SyntheticFixtures.dailySummaryD0()
         s.sleep?.totalMin = 430
+        s.sleep?.deepMin = 58
+        s.sleep?.bedLocal = "23:10"
         s.heart?.hrvSDNNOvernightMedian = 55
+        s.heart?.restingHR = 57
+        s.activity?.steps = 8_700
         s.meals = []
+        s.activeExperiments = []
         #expect(RulesEngine.evaluate(s).isEmpty)
         #expect(try await DailyPipeline().run(s).isEmpty)
     }
@@ -52,6 +57,7 @@ import HPLInference
         let json = #"{"schema":"hpl.daily_summary.v1","provenance":"synthetic_fixture","day":"D0","day_of_week":"Sat","#
             + #""workouts":[],"meals":[],"labs_recent":[],"rule_hits":[],"active_experiments":[],"completeness":0}"#
         let s = try HPLJSON.decoder.decode(DailySummaryV1.self, from: Data(json.utf8))
-        #expect(try await DailyPipeline().run(s).isEmpty)
+        // Nothing to say about an empty day except that it's empty.
+        #expect(try await DailyPipeline().run(s).map(\.title) == ["Limited data today"])
     }
 }

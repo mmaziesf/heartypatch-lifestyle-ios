@@ -54,6 +54,9 @@ public final class AppModel {
     public private(set) var healthPromptDismissed = false
     public let isDegraded: Bool
     public let labs: LabsModel
+    public private(set) var engineStatus = "Checking…"
+    public private(set) var evalReport: EvalHarness.Report?
+    public private(set) var isRunningEval = false
 
     private let consents: any ConsentRepository
     private let pipeline: DailyPipeline
@@ -80,6 +83,16 @@ public final class AppModel {
 
     public var needsDisclaimer: Bool { disclaimerAcknowledgedAt == nil }
     public var engineName: String { pipeline.engine.id }
+
+    public func refreshEngineStatus() async { engineStatus = await InsightEngines.status(of: pipeline.engine) }
+
+    /// Debug: runs the 50 synthetic eval days through the live engine + guard and keeps the scores (on device only).
+    public func runInsightEval() async {
+        guard !isRunningEval else { return }
+        isRunningEval = true
+        defer { isRunningEval = false }
+        evalReport = try? await EvalHarness(pipeline: pipeline).run()
+    }
     public var isHealthConnected: Bool { (try? consents.active(.healthkit, version: HealthConsent.version)) != nil }
     /// Onboarding step after the disclaimer (§9.2): offer Apple Health once; "Not now" leaves a card on Today.
     public var needsHealthPrompt: Bool { !needsDisclaimer && healthStatus == .notConnected && !healthPromptDismissed }
