@@ -9,11 +9,40 @@ public struct SummaryBuilder: Sendable {
     /// Signals counted in `completeness` for M1 (meals and labs join in later milestones).
     public static let expectedSignals = 6
 
+    /// Confirmed lab results older than this are left out of the summary.
+    public static let labsLookbackDays = 365
+
     private let aggregates: any HealthAggregateRepository
+    private let labs: (any LabRepository)?
     private let calendar: Calendar
 
-    public init(aggregates: any HealthAggregateRepository, calendar: Calendar = .hplLocal()) {
-        self.aggregates = aggregates; self.calendar = calendar
+    public init(aggregates: any HealthAggregateRepository, labs: (any LabRepository)? = nil, calendar: Calendar = .hplLocal()) {
+        self.aggregates = aggregates; self.labs = labs; self.calendar = calendar
+    }
+
+    /// Latest confirmed result per dictionary analyte (§5.2: nothing unconfirmed, nothing out-of-dictionary).
+    /// Values and the report's own range are expressed in the canonical unit when a conversion is known.
+    public func labsRecent(on day: LocalDay) throws -> [DailySummaryV1.LabRecent] {
+        guard let labs else { return [] }
+        var seen = Set<String>()
+        var out: [DailySummaryV1.LabRecent] = []
+        for (panel, r) in try labs.confirmedResults() where panel.collectedOn <= day && r.userConfirmed {
+            guard let key = r.analyteCanonical, !seen.contains(key) else { continue }
+            let age = calendar.dateComponents([.day], from: panel.collectedOn.start(in: calendar), to: day.start(in: calendar)).day ?? 0
+            guard age <= Self.labsLookbackDays else { continue }
+            let canonical = r.valueCanonical != nil && r.unitCanonical != nil
+            var factor: Double? = 1
+            if canonical {
+                if let raw = r.valueNumeric, raw != 0, let c = r.valueCanonical { factor = c / raw } else { factor = nil }
+            }
+            let unit = (canonical ? r.unitCanonical : r.unitRaw) ?? ""
+            guard !unit.isEmpty, unit.count <= 16 else { continue }
+            func conv(_ v: Double?) -> Double? { v.flatMap { v in factor.map { ((v * $0) * 100).rounded() / 100 } } }
+            seen.insert(key)
+            out.append(.init(analyte: key, value: (canonical ? r.valueCanonical : r.valueNumeric).map { ($0 * 100).rounded() / 100 },
+                             unit: unit, refLow: conv(r.refLow), refHigh: conv(r.refHigh), reportFlag: r.flagFromReport?.rawValue, ageDays: age))
+        }
+        return out.sorted { $0.analyte < $1.analyte }
     }
 
     /// `nil` when HealthKit gave us nothing for `day` (no data, or read access not granted; HealthKit can't tell us which).
@@ -67,7 +96,7 @@ public struct SummaryBuilder: Sendable {
                        activity.steps != nil, activity.activeKcal != nil, activity.exerciseMin != nil].filter { $0 }.count
         return DailySummaryV1(
             provenance: .device, day: day.description, dayOfWeek: day.weekdayAbbrev(calendar: calendar),
-            sleep: sleep, heart: heart, activity: activity, workouts: workouts,
+            sleep: sleep, heart: heart, activity: activity, workouts: workouts, labsRecent: try labsRecent(on: day),
             completeness: (Double(present) / Double(Self.expectedSignals) * 100).rounded() / 100)
     }
 

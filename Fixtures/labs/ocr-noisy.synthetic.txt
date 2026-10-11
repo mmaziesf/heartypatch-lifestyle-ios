@@ -1,0 +1,13 @@
+SYNTHETIC SCAN (OCR OUTPUT)
+PATIENT: ZZTEST, SYNTH D
+DOB 05/06/1904
+Specimen collected: 11/20/2025
+Glucose, Fasting 92 mg/dl 70-99
+Insulin, Fasting 11.2 uIU/mL 2.6-24.9
+Triglycerides 210 mg/dl 0 - 149 HIGH
+HDL-C 41 mg/dl >39
+Uric Acid 7.4 mg/dl 3.8-8.4
+Ferritin 154 ng/ml 30 - 400
+Magnesium 2.1 mg/dl 1.6-2.3
+Hepatitis B Surface Ag Negative Negative
+Some prose line with 3 numbers 12 and 14 that is not a result

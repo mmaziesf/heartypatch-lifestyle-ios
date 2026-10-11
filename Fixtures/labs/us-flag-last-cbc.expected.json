@@ -1,0 +1,30 @@
+{
+  "collected_on": "2026-05-01",
+  "forbidden": ["ZZTEST", "1902", "ZZ99887766"],
+  "rows": [
+    {"analyte": "wbc", "value": 6.2, "unit": "10*3/uL", "ref_low": 3.4, "ref_high": 10.8},
+    {"analyte": "rbc", "value": 4.31, "unit": "10*6/uL", "ref_low": 4.14, "ref_high": 5.80},
+    {"analyte": "hemoglobin", "value": 12.9, "unit": "g/dL", "ref_low": 13.0, "ref_high": 17.7, "flag": "L"},
+    {"analyte": "hematocrit", "value": 39.1, "unit": "%", "ref_low": 37.5, "ref_high": 51.0},
+    {"analyte": "mcv", "value": 91, "unit": "fL", "ref_low": 79, "ref_high": 97},
+    {"analyte": "mch", "value": 29.9, "unit": "pg", "ref_low": 26.6, "ref_high": 33.0},
+    {"analyte": "mchc", "value": 33.0, "unit": "g/dL", "ref_low": 31.5, "ref_high": 35.7},
+    {"analyte": "rdw", "value": 13.1, "unit": "%", "ref_low": 11.6, "ref_high": 15.4},
+    {"analyte": "platelets", "value": 251, "unit": "10*3/uL", "ref_low": 150, "ref_high": 450},
+    {"analyte": "neutrophils_pct", "value": 58, "unit": "%"},
+    {"analyte": "lymphocytes_pct", "value": 31, "unit": "%"},
+    {"analyte": "neutrophils_abs", "value": 3.6, "unit": "10*3/uL", "ref_low": 1.4, "ref_high": 7.0},
+    {"analyte": "lymphocytes_abs", "value": 1.9, "unit": "10*3/uL", "ref_low": 0.7, "ref_high": 3.1},
+    {"analyte": "ferritin", "value": 18, "unit": "ng/mL", "ref_low": 30, "ref_high": 400, "flag": "L"},
+    {"analyte": "iron", "value": 61, "unit": "ug/dL", "ref_low": 38, "ref_high": 169},
+    {"analyte": "vitamin_d_25oh", "value": 22.4, "unit": "ng/mL", "ref_low": 30.0, "ref_high": 100.0, "flag": "L"},
+    {"analyte": "vitamin_b12", "value": 410, "unit": "pg/mL", "ref_low": 232, "ref_high": 1245},
+    {"analyte": "tsh", "value": 2.10, "unit": "uIU/mL", "ref_low": 0.450, "ref_high": 4.500},
+    {"analyte": "free_t4", "value": 1.21, "unit": "ng/dL", "ref_low": 0.82, "ref_high": 1.77},
+    {"analyte": "hscrp", "value": 0.8, "unit": "mg/L", "ref_low": 0.0, "ref_high": 3.0},
+    {"analyte": "apob", "value": 96, "unit": "mg/dL", "ref_high": 90, "flag": "H"},
+    {"analyte": "lpa", "value": 8.4, "unit": "nmol/L", "ref_high": 75.0},
+    {"analyte": "testosterone_total", "value": 512, "unit": "ng/dL", "ref_low": 264, "ref_high": 916}
+  ],
+  "unmapped": ["ZZ Novel Marker"]
+}

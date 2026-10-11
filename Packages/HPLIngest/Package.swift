@@ -7,9 +7,10 @@ let package = Package(
     products: [.library(name: "HPLIngest", targets: ["HPLIngest"])],
     dependencies: [
         .package(path: "../HPLCore"),
+        .package(path: "../HPLStore"),
     ],
     targets: [
         .target(name: "HPLIngest", dependencies: ["HPLCore"]),
-        .testTarget(name: "HPLIngestTests", dependencies: ["HPLIngest", "HPLCore"]),
+        .testTarget(name: "HPLIngestTests", dependencies: ["HPLIngest", "HPLCore", "HPLStore"]),
     ]
 )

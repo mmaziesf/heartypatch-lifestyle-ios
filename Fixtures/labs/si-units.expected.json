@@ -1,0 +1,15 @@
+{
+  "collected_on": "2026-06-09",
+  "forbidden": ["ZZTEST", "1903"],
+  "rows": [
+    {"analyte": "glucose", "value": 5.4, "unit": "mmol/L", "ref_low": 3.9, "ref_high": 5.5, "canonical": 97.29},
+    {"analyte": "cholesterol_total", "value": 5.2, "unit": "mmol/L", "ref_high": 5.0, "flag": "H", "canonical": 201.08},
+    {"analyte": "hdl", "value": 1.4, "unit": "mmol/L", "ref_low": 1.0},
+    {"analyte": "ldl", "value": 3.1, "unit": "mmol/L", "ref_high": 3.0, "flag": "H"},
+    {"analyte": "triglycerides", "value": 1.2, "unit": "mmol/L", "ref_high": 1.7},
+    {"analyte": "creatinine", "value": 84, "unit": "umol/L", "ref_low": 59, "ref_high": 104, "canonical": 0.95},
+    {"analyte": "hba1c", "value": 36, "unit": "mmol/mol", "ref_low": 20, "ref_high": 41},
+    {"analyte": "hemoglobin", "value": 141, "unit": "g/L", "ref_low": 130, "ref_high": 170, "canonical": 14.1},
+    {"analyte": "vitamin_d_25oh", "value": 61, "unit": "nmol/L", "ref_low": 50, "ref_high": 150, "canonical": 24.44}
+  ]
+}

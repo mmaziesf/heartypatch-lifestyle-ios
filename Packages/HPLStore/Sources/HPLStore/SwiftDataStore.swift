@@ -64,7 +64,10 @@ import HPLCore
 
 /// One SQLite-backed SwiftData store exposing all three repositories. Access is serialized by a lock around one context.
 public final class SwiftDataStore: @unchecked Sendable {
-    public static let schemaTypes: [any PersistentModel.Type] = [HealthAggregateRecord.self, SyncStateRecord.self, ConsentRecord.self]
+    public static let schemaTypes: [any PersistentModel.Type] = [
+        HealthAggregateRecord.self, SyncStateRecord.self, ConsentRecord.self,
+        SourceDocumentRecord.self, LabPanelRecord.self, LabResultRecord.self,
+    ]
 
     private let container: ModelContainer
     private let context: ModelContext
@@ -103,6 +106,7 @@ public final class SwiftDataStore: @unchecked Sendable {
     public var aggregates: any HealthAggregateRepository { SwiftDataHealthAggregateRepository(store: self) }
     public var syncState: any SyncStateRepository { SwiftDataSyncStateRepository(store: self) }
     public var consents: any ConsentRepository { SwiftDataConsentRepository(store: self) }
+    public var labs: any LabRepository { SwiftDataLabRepository(store: self) }
 
     /// "Delete all" for health data (§10): aggregates + anchors. HealthKit itself is untouched.
     public func deleteAllHealthData() throws {
@@ -121,6 +125,119 @@ public final class SwiftDataStore: @unchecked Sendable {
         let existing = Set(try repo.all().map(\.id))
         for c in old where !existing.contains(c.id) { try repo.save(c) }
         legacy.removeAll()
+    }
+}
+
+@Model final class SourceDocumentRecord {
+    @Attribute(.unique) var id: UUID
+    var kind: String
+    var sha256: String
+    var storedFileName: String
+    var importedAt: Date
+    var extractor: String
+    var status: String
+
+    init(_ d: SourceDocument) {
+        id = d.id; kind = d.kind.rawValue; sha256 = d.sha256; storedFileName = d.storedFileName
+        importedAt = d.importedAt; extractor = d.extractor; status = d.status.rawValue
+    }
+
+    var value: SourceDocument? {
+        guard let k = SourceDocument.Kind(rawValue: kind), let s = SourceDocument.Status(rawValue: status) else { return nil }
+        return SourceDocument(id: id, kind: k, sha256: sha256, storedFileName: storedFileName, importedAt: importedAt, extractor: extractor, status: s)
+    }
+}
+
+@Model final class LabPanelRecord {
+    @Attribute(.unique) var id: UUID
+    var collectedOn: String
+    var sourceDocumentID: UUID?
+    var confirmedAt: Date
+
+    init(_ p: LabPanel) { id = p.id; collectedOn = p.collectedOn.description; sourceDocumentID = p.sourceDocumentID; confirmedAt = p.confirmedAt }
+
+    var value: LabPanel? {
+        LocalDay(string: collectedOn).map { LabPanel(id: id, collectedOn: $0, sourceDocumentID: sourceDocumentID, confirmedAt: confirmedAt) }
+    }
+}
+
+/// Stored as one Codable blob per result: labs are low-volume and always read per panel.
+@Model final class LabResultRecord {
+    @Attribute(.unique) var id: UUID
+    var panelID: UUID
+    var payload: Data
+
+    init(_ r: LabResult) throws { id = r.id; panelID = r.panelID; payload = try HPLJSON.encoder.encode(r) }
+    var value: LabResult? { try? HPLJSON.decoder.decode(LabResult.self, from: payload) }
+}
+
+struct SwiftDataLabRepository: LabRepository {
+    let store: SwiftDataStore
+
+    func document(sha256: String) throws -> SourceDocument? {
+        try store.withContext { ctx in
+            var d = FetchDescriptor<SourceDocumentRecord>(predicate: #Predicate { $0.sha256 == sha256 })
+            d.fetchLimit = 1
+            return try ctx.fetch(d).first?.value
+        }
+    }
+
+    func documents() throws -> [SourceDocument] {
+        try store.withContext { try $0.fetch(FetchDescriptor<SourceDocumentRecord>(sortBy: [SortDescriptor(\.importedAt)])).compactMap(\.value) }
+    }
+
+    func saveDocument(_ doc: SourceDocument) throws {
+        try store.withContext { ctx in
+            try upsert(doc, in: ctx)
+            try ctx.save()
+        }
+    }
+
+    private func upsert(_ doc: SourceDocument, in ctx: ModelContext) throws {
+        let id = doc.id
+        var d = FetchDescriptor<SourceDocumentRecord>(predicate: #Predicate { $0.id == id })
+        d.fetchLimit = 1
+        if let r = try ctx.fetch(d).first {
+            r.kind = doc.kind.rawValue; r.sha256 = doc.sha256; r.storedFileName = doc.storedFileName
+            r.importedAt = doc.importedAt; r.extractor = doc.extractor; r.status = doc.status.rawValue
+        } else {
+            ctx.insert(SourceDocumentRecord(doc))
+        }
+    }
+
+    func saveConfirmed(panel: LabPanel, results: [LabResult]) throws {
+        guard results.allSatisfy(\.userConfirmed) else { throw LabRepositoryError.unconfirmedResult }
+        try store.withContext { ctx in
+            ctx.insert(LabPanelRecord(panel))
+            for r in results { ctx.insert(try LabResultRecord(r)) }
+            if let docID = panel.sourceDocumentID {
+                var d = FetchDescriptor<SourceDocumentRecord>(predicate: #Predicate { $0.id == docID })
+                d.fetchLimit = 1
+                try ctx.fetch(d).first?.status = SourceDocument.Status.confirmed.rawValue
+            }
+            try ctx.save()
+        }
+    }
+
+    func panels() throws -> [LabPanel] {
+        try store.withContext { ctx in
+            try ctx.fetch(FetchDescriptor<LabPanelRecord>(sortBy: [SortDescriptor(\.collectedOn, order: .reverse)])).compactMap(\.value)
+        }
+    }
+
+    func results(panelID: UUID) throws -> [LabResult] {
+        try store.withContext { ctx in
+            try ctx.fetch(FetchDescriptor<LabResultRecord>(predicate: #Predicate { $0.panelID == panelID })).compactMap(\.value)
+        }
+    }
+
+    func deleteAll() throws {
+        try store.withContext { ctx in
+            try ctx.delete(model: LabResultRecord.self)
+            try ctx.delete(model: LabPanelRecord.self)
+            try ctx.delete(model: SourceDocumentRecord.self)
+            try ctx.save()
+        }
     }
 }
 

@@ -1,6 +1,7 @@
 import SwiftUI
 import HPLStore
 import HPLHealth
+import HPLIngest
 import HPLUI
 
 @main
@@ -39,7 +40,8 @@ enum AppBootstrap {
             let store = try SwiftDataStore.persistent()
             try? store.migrateConsents(from: legacy)
             let health = HealthServices(source: HealthKitDataSource(), aggregates: store.aggregates, syncState: store.syncState)
-            return AppModel(consents: store.consents, health: health)
+            let importer = LabImporter(repository: store.labs, files: try ProtectedLabFileStore(), extractor: OnDeviceLabExtractor())
+            return AppModel(consents: store.consents, health: health, labs: LabServices(importer: importer, repository: store.labs))
         } catch {
             // Data Protection: the store is unreadable until first unlock. No HealthKit work this launch (§10 DECISION: defer).
             return AppModel(consents: legacy, health: nil, isDegraded: true)

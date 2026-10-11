@@ -53,18 +53,22 @@ public final class AppModel {
     public private(set) var todaySource: TodaySource = .syntheticFixture
     public private(set) var healthPromptDismissed = false
     public let isDegraded: Bool
+    public let labs: LabsModel
 
     private let consents: any ConsentRepository
     private let pipeline: DailyPipeline
     private let health: HealthServices?
+    private let labRepository: (any LabRepository)?
     private let now: @Sendable () -> Date
     private var isSyncing = false
     private var observing = false
 
-    public init(consents: any ConsentRepository, health: HealthServices? = nil, pipeline: DailyPipeline = DailyPipeline(),
-                isDegraded: Bool = false, now: @escaping @Sendable () -> Date = Date.init) {
+    public init(consents: any ConsentRepository, health: HealthServices? = nil, labs: LabServices? = nil,
+                pipeline: DailyPipeline = DailyPipeline(), isDegraded: Bool = false, now: @escaping @Sendable () -> Date = Date.init) {
         self.consents = consents
         self.health = health
+        self.labs = LabsModel(services: labs, calendar: health?.calendar ?? .hplLocal())
+        labRepository = labs?.repository
         self.pipeline = pipeline
         self.isDegraded = isDegraded
         self.now = now
@@ -118,7 +122,7 @@ public final class AppModel {
         await sync(health)
         do {
             let today = LocalDay(now(), calendar: health.calendar)
-            if let s = try SummaryBuilder(aggregates: health.aggregates, calendar: health.calendar).build(day: today) {
+            if let s = try SummaryBuilder(aggregates: health.aggregates, labs: labRepository, calendar: health.calendar).build(day: today) {
                 summary = s
                 todaySource = .device
                 recommendations = try await pipeline.run(s)

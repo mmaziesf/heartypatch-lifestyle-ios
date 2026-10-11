@@ -1,0 +1,26 @@
+{
+  "collected_on": "2026-03-14",
+  "forbidden": ["ZZTEST", "1901", "ZZ-000-111", "Nowhere", "Placeholder"],
+  "rows": [
+    {"analyte": "glucose", "value": 105, "unit": "mg/dL", "ref_low": 65, "ref_high": 99, "flag": "H"},
+    {"analyte": "bun", "value": 14, "unit": "mg/dL", "ref_low": 6, "ref_high": 24},
+    {"analyte": "creatinine", "value": 0.98, "unit": "mg/dL", "ref_low": 0.76, "ref_high": 1.27},
+    {"analyte": "egfr", "value": 98, "unit": "mL/min/1.73m2", "ref_low": 59},
+    {"analyte": "sodium", "value": 139, "unit": "mmol/L", "ref_low": 134, "ref_high": 144},
+    {"analyte": "potassium", "value": 4.4, "unit": "mmol/L", "ref_low": 3.5, "ref_high": 5.2},
+    {"analyte": "chloride", "value": 101, "unit": "mmol/L", "ref_low": 96, "ref_high": 106},
+    {"analyte": "co2", "value": 24, "unit": "mmol/L", "ref_low": 20, "ref_high": 29},
+    {"analyte": "calcium", "value": 9.6, "unit": "mg/dL", "ref_low": 8.7, "ref_high": 10.2},
+    {"analyte": "protein_total", "value": 7.0, "unit": "g/dL", "ref_low": 6.0, "ref_high": 8.5},
+    {"analyte": "albumin", "value": 4.6, "unit": "g/dL", "ref_low": 4.1, "ref_high": 5.1},
+    {"analyte": "bilirubin_total", "value": 0.6, "unit": "mg/dL", "ref_low": 0.0, "ref_high": 1.2},
+    {"analyte": "alk_phos", "value": 71, "unit": "U/L", "ref_low": 44, "ref_high": 121},
+    {"analyte": "ast", "value": 23, "unit": "U/L", "ref_low": 0, "ref_high": 40},
+    {"analyte": "alt", "value": 31, "unit": "U/L", "ref_low": 0, "ref_high": 44},
+    {"analyte": "cholesterol_total", "value": 212, "unit": "mg/dL", "ref_low": 100, "ref_high": 199, "flag": "H"},
+    {"analyte": "triglycerides", "value": 148, "unit": "mg/dL", "ref_low": 0, "ref_high": 149},
+    {"analyte": "hdl", "value": 48, "unit": "mg/dL", "ref_low": 39},
+    {"analyte": "ldl", "value": 137, "unit": "mg/dL", "ref_low": 0, "ref_high": 99, "flag": "H"},
+    {"analyte": "hba1c", "value": 5.7, "unit": "%", "ref_low": 4.8, "ref_high": 5.6, "flag": "H"}
+  ]
+}

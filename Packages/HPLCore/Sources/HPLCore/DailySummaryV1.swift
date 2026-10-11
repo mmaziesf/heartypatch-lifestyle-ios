@@ -99,6 +99,10 @@ public struct DailySummaryV1: Codable, Sendable, Equatable {
         public var refHigh: Double?
         public var reportFlag: String?
         public var ageDays: Int
+        public init(analyte: String, value: Double?, unit: String, refLow: Double?, refHigh: Double?, reportFlag: String?, ageDays: Int) {
+            self.analyte = analyte; self.value = value; self.unit = unit; self.refLow = refLow; self.refHigh = refHigh
+            self.reportFlag = reportFlag; self.ageDays = ageDays
+        }
         enum CodingKeys: String, CodingKey {
             case analyte, value, unit, refLow = "ref_low", refHigh = "ref_high", reportFlag = "report_flag", ageDays = "age_days"
         }

@@ -1,0 +1,13 @@
+{
+  "collected_on": "2025-11-20",
+  "forbidden": ["ZZTEST", "1904"],
+  "rows": [
+    {"analyte": "glucose", "value": 92, "unit": "mg/dL", "ref_low": 70, "ref_high": 99},
+    {"analyte": "insulin", "value": 11.2, "unit": "uIU/mL", "ref_low": 2.6, "ref_high": 24.9},
+    {"analyte": "triglycerides", "value": 210, "unit": "mg/dL", "ref_low": 0, "ref_high": 149, "flag": "H"},
+    {"analyte": "hdl", "value": 41, "unit": "mg/dL", "ref_low": 39},
+    {"analyte": "uric_acid", "value": 7.4, "unit": "mg/dL", "ref_low": 3.8, "ref_high": 8.4},
+    {"analyte": "ferritin", "value": 154, "unit": "ng/mL", "ref_low": 30, "ref_high": 400},
+    {"analyte": "magnesium", "value": 2.1, "unit": "mg/dL", "ref_low": 1.6, "ref_high": 2.3}
+  ]
+}

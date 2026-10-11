@@ -1,11 +1,11 @@
-# HeartyPatch Lifestyle (M1 in progress)
+# HeartyPatch Lifestyle (M2 scaffold)
 
 Local-first iOS app: Apple Watch / HealthKit + your confirmed blood work (+ Ray-Ban meal logs later) → an on-device daily summary → coaching-style lifestyle notes and self-experiments.
 
 > **Not medical advice.** HeartyPatch Lifestyle provides general wellness information and self-experiment ideas based on data you choose to share with it. It is not a medical device and does not diagnose, treat, cure, or prevent any disease or provide medical advice. Lab values are shown as printed on your report; we do not interpret them. Talk to a qualified clinician about any health concern or before changing medications, diet, or exercise in significant ways. If you think you may have a medical emergency, call your local emergency number.
 
 - Architecture: [`docs/architecture.md`](docs/architecture.md) (one-page: [`docs/architecture-SUMMARY.md`](docs/architecture-SUMMARY.md))
-- Milestone: **M0 done; M1 (HealthKit daily aggregates) code landed, awaiting on-device validation.** See [`docs/m1-healthkit.md`](docs/m1-healthkit.md).
+- Milestone: **M0 done; M1 (HealthKit daily aggregates) code landed, awaiting on-device validation. M2 (lab import) scaffold landed; accuracy gate needs real redacted reports.** See [`docs/m1-healthkit.md`](docs/m1-healthkit.md) and [`docs/m2-labs.md`](docs/m2-labs.md).
 
 ## What M0 does
 
@@ -55,7 +55,7 @@ Packages/
   HPLCore            DailySummaryV1, HPLEventV1, JSONValue, Recommendation, Consent, Disclaimer, labeled fixtures
   HPLStore           SwiftData store (aggregates, sync anchors, consents; FileProtection complete) + in-memory impls
   HPLHealth          HealthKit read: auth, statistics/anchored/observer queries, sleep + HRV aggregators, HealthSyncEngine
-  HPLIngest          Lab OCR/parse/confirm (M2). Stub
+  HPLIngest          Lab import: PDFKit/Vision extraction, rules parser, analyte dictionary, review session, SHA-256 dedupe (M2)
   HPLInference       InsightEngine protocol, RulesOnlyEngine, OutputGuard
   HPLPipeline        SummaryBuilder (aggregates -> DailySummary v1, 28d baselines), RulesEngine (3 rules), DailyPipeline
   HPLBridge          EventInbox: decode, idempotency, unknown-type ignore (HMAC in M5)
@@ -72,6 +72,6 @@ scripts/             test/validate/CI helpers
 - The fixture's `sleep.total_min` is 352 instead of the doc example's 382, so the short-sleep rule fires. `rule_hits` is computed by the pipeline, not stored in the fixture.
 - Null and absent are treated as equivalent for optional fields; Swift omits nil on encode.
 - The project uses XcodeGen (`project.yml`) instead of a committed `.xcworkspace`/`.pbxproj`, which keeps diffs reviewable and makes fresh clones reproducible in CI.
-- `InsightEngine.extractLabRows` is deferred to M2.
+- `InsightEngine.extractLabRows` (LLM assist) is not used; M2 is rules-only. See [`docs/m2-labs.md`](docs/m2-labs.md).
 - M0 consent storage was UserDefaults (disclaimer acknowledgement only). Since M1, consents live in the SwiftData store; the app migrates the old key once on launch.
 - M1 deviations and on-device checks: [`docs/m1-healthkit.md`](docs/m1-healthkit.md).

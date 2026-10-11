@@ -1,0 +1,13 @@
+SYNTHETIC INTERNATIONAL LAB (SI UNITS)
+Name: ZZTEST Synthetic C
+Birth date: 03.04.1903
+Date collected: Jun 9, 2026
+Fasting glucose 5.4 mmol/L 3.9 - 5.5
+Total cholesterol 5.2 mmol/L < 5.0 H
+HDL cholesterol 1.4 mmol/L > 1.0
+LDL cholesterol 3.1 mmol/L < 3.0 H
+Triglycerides 1.2 mmol/L < 1.7
+Creatinine 84 umol/L 59 - 104
+HbA1c 36 mmol/mol 20 - 41
+Haemoglobin 141 g/L 130 - 170
+Vitamin D 61 nmol/L 50 - 150

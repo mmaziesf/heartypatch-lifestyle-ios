@@ -1,0 +1,33 @@
+SYNTHETIC HOSPITAL PORTAL EXPORT
+Patient: SYNTHETIC B ZZTEST   Sex: X
+Date of Birth: 1902-03-04
+Account #: ZZ99887766
+Collection Date: 2026-05-01
+CBC WITH DIFFERENTIAL/PLATELET
+WBC 6.2 x10E3/uL 3.4-10.8
+RBC 4.31 x10E6/uL 4.14-5.80
+Hemoglobin 12.9 g/dL 13.0-17.7 L
+Hematocrit 39.1 % 37.5-51.0
+MCV 91 fL 79-97
+MCH 29.9 pg 26.6-33.0
+MCHC 33.0 g/dL 31.5-35.7
+RDW 13.1 % 11.6-15.4
+Platelets 251 x10E3/uL 150-450
+Neutrophils 58 % Not Estab.
+Lymphs 31 % Not Estab.
+Neutrophils (Absolute) 3.6 x10E3/uL 1.4-7.0
+Lymphs (Absolute) 1.9 x10E3/uL 0.7-3.1
+Ferritin 18 ng/mL 30-400 L
+Iron 61 ug/dL 38-169
+Vitamin D, 25-Hydroxy 22.4 ng/mL 30.0-100.0 L
+Vitamin B12 410 pg/mL 232-1245
+TSH 2.10 uIU/mL 0.450-4.500
+Free T4 1.21 ng/dL 0.82-1.77
+Page 1 of 2
+Page 2 of 2
+hs-CRP 0.8 mg/L 0.0-3.0
+Apolipoprotein B 96 mg/dL <90 H
+Lipoprotein (a) <8.4 nmol/L <75.0
+Testosterone, Total 512 ng/dL 264-916
+ZZ Novel Marker 3.3 mg/L 1.0-2.0
+End of synthetic report

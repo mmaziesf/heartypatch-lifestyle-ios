@@ -64,7 +64,7 @@ struct MainTabView: View {
     var body: some View {
         TabView {
             Tab("Today", systemImage: "sun.max") { NavigationStack { TodayView(model: model) } }
-            Tab("Labs", systemImage: "testtube.2") { Placeholder(title: "Labs", detail: "Blood-work import with confirm-every-value arrives in M2.") }
+            Tab("Labs", systemImage: "testtube.2") { NavigationStack { LabsView(labs: model.labs) } }
             Tab("Meals", systemImage: "fork.knife") { Placeholder(title: "Meals", detail: "Manual + Ray-Ban (VisionClaw) meal logs arrive in M5.") }
             Tab("Insights", systemImage: "lightbulb") { Placeholder(title: "Insights", detail: "Recommendation history and experiments arrive in M4.") }
             Tab("Settings", systemImage: "gearshape") { NavigationStack { SettingsView(model: model) } }

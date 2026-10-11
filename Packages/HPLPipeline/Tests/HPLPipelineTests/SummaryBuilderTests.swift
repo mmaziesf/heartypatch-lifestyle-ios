@@ -64,3 +64,36 @@ private func agg(_ day: LocalDay, _ m: HealthMetric, _ s: AggregateStats) -> Hea
         #expect(try b.build(day: today.adding(days: 1, calendar: la)) == nil, "no data is reported as no data, not zeros")
     }
 }
+
+@Suite struct SummaryLabsTests {
+    func result(_ panel: LabPanel, _ key: String?, value: Double, unit: String, canonical: Double?, canonicalUnit: String?,
+                low: Double? = nil, high: Double? = nil, flag: ReportFlag? = nil) -> LabResult {
+        LabResult(panelID: panel.id, analyteRaw: key ?? "Novel", analyteCanonical: key, loinc: nil, valueNumeric: value, valueText: nil,
+                  unitRaw: unit, unitCanonical: canonicalUnit, valueCanonical: canonical, refLow: low, refHigh: high, refText: nil,
+                  flagFromReport: flag, extractionConfidence: 1, page: 1, userConfirmed: true, userEdited: false)
+    }
+
+    @Test func latestConfirmedDictionaryLabsInCanonicalUnits() throws {
+        let labs = InMemoryLabRepository()
+        let old = LabPanel(collectedOn: LocalDay(string: "2026-03-14")!, sourceDocumentID: nil, confirmedAt: Date())
+        let new = LabPanel(collectedOn: LocalDay(string: "2026-09-01")!, sourceDocumentID: nil, confirmedAt: Date())
+        let ancient = LabPanel(collectedOn: LocalDay(string: "2024-01-01")!, sourceDocumentID: nil, confirmedAt: Date())
+        try labs.saveConfirmed(panel: old, results: [result(old, "hba1c", value: 5.7, unit: "%", canonical: 5.7, canonicalUnit: "%",
+            low: 4.8, high: 5.6, flag: .high),
+                                                     result(old, "glucose", value: 105, unit: "mg/dL", canonical: 105, canonicalUnit: "mg/dL")])
+        try labs.saveConfirmed(panel: new, results: [result(new, "glucose", value: 5.4, unit: "mmol/L", canonical: 97.29,
+            canonicalUnit: "mg/dL", low: 3.9, high: 5.5),
+                                                     result(new, nil, value: 3.3, unit: "mg/L", canonical: nil, canonicalUnit: nil)])
+        try labs.saveConfirmed(panel: ancient, results: [result(ancient, "tsh", value: 2, unit: "uIU/mL", canonical: 2, canonicalUnit: "uIU/mL")])
+
+        let today = LocalDay(string: "2026-10-10")!
+        let repo = InMemoryHealthAggregateRepository([agg(today, .steps, AggregateStats(sum: 100))])
+        let s = try #require(try SummaryBuilder(aggregates: repo, labs: labs, calendar: la).build(day: today))
+        #expect(s.labsRecent.map(\.analyte) == ["glucose", "hba1c"], "latest per analyte; unmapped and >365d excluded")
+        let g = s.labsRecent[0]
+        #expect(g.value == 97.29); #expect(g.unit == "mg/dL"); #expect(g.ageDays == 39)
+        #expect(abs((g.refLow ?? 0) - 70.27) < 0.05 && abs((g.refHigh ?? 0) - 99.09) < 0.05, "report range converted with the same factor, not replaced")
+        #expect(s.labsRecent[1].reportFlag == "H")
+        _ = try HPLJSON.decoder.decode(DailySummaryV1.self, from: HPLJSON.encoder.encode(s))
+    }
+}

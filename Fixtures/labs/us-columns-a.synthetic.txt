@@ -1,0 +1,35 @@
+SYNTHETIC REFERENCE LABORATORY - TEST DOCUMENT
+Patient Name: ZZTEST, SYNTHETIC A
+DOB: 01/02/1901
+MRN: ZZ-000-111
+Address: 1 Nowhere Lane, Testville ZZ 00000
+Ordering Physician: Dr. Placeholder ZZTEST
+Collected: 03/14/2026 07:42
+Reported: 03/15/2026
+
+COMPREHENSIVE METABOLIC PANEL
+Test                     Result   Flag   Units          Reference Range
+Glucose                  105      H      mg/dL          65-99
+BUN                      14              mg/dL          6-24
+Creatinine               0.98            mg/dL          0.76-1.27
+eGFR                     98              mL/min/1.73 m2 >59
+Sodium                   139             mmol/L         134-144
+Potassium                4.4             mmol/L         3.5-5.2
+Chloride                 101             mmol/L         96-106
+Carbon Dioxide, Total    24              mmol/L         20-29
+Calcium                  9.6             mg/dL          8.7-10.2
+Protein, Total           7.0             g/dL           6.0-8.5
+Albumin                  4.6             g/dL           4.1-5.1
+Bilirubin, Total         0.6             mg/dL          0.0-1.2
+Alkaline Phosphatase     71              IU/L           44-121
+AST (SGOT)               23              IU/L           0-40
+ALT (SGPT)               31              IU/L           0-44
+
+LIPID PANEL
+Cholesterol, Total       212      H      mg/dL          100-199
+Triglycerides            148             mg/dL          0-149
+HDL Cholesterol          48              mg/dL          >39
+LDL Chol Calc (NIH)      137      H      mg/dL          0-99
+
+Hemoglobin A1c           5.7      H      %              4.8-5.6
+Comment: values above are synthetic test data.
