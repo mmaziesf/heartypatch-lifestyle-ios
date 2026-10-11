@@ -97,6 +97,14 @@ struct Harness {
         #expect(try h.repo.meals().isEmpty && h.repo.receipt(eventID: "01M4P7SAJGANKTHYVGBT9W1TXP") == nil)
     }
 
+    @Test func pairingCodeMatchesGlanceAndFallsBackToKeychain() throws {
+        let h = try Harness()
+        let info = try #require(try h.repo.bridgeState().pairings.first)
+        #expect(info.code == "ae216c2e")
+        let legacy = PairingInfo(id: FixturePairing.id, label: "old", createdAt: Date())
+        #expect(PairingManager(repository: h.repo, secrets: h.secrets).code(for: legacy) == "ae216c2e")
+    }
+
     @Test func revokedPairingIsRejected() async throws {
         let h = try Harness()
         try PairingManager(repository: h.repo, secrets: h.secrets).revoke(id: FixturePairing.id)

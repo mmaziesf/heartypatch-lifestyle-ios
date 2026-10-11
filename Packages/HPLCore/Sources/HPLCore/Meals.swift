@@ -98,7 +98,20 @@ public struct PairingInfo: Codable, Sendable, Equatable, Identifiable {
     public var id: String
     public var label: String
     public var createdAt: Date
-    public init(id: String, label: String, createdAt: Date) { self.id = id; self.label = label; self.createdAt = createdAt }
+    /// 8-char pairing code (`PairingCode.of(secret)`), shown on both sides so you can check they hold the same key.
+    /// Not secret (32 bits of a hash). `nil` for pairings made before the code existed; the UI then reads the Keychain.
+    public var code: String?
+    public init(id: String, label: String, createdAt: Date, code: String? = nil) {
+        self.id = id; self.label = label; self.createdAt = createdAt; self.code = code
+    }
+}
+
+/// Short pairing code: first 8 lowercase hex chars of SHA-256(secret). Same as Glance's `HplPairing.fingerprint()`
+/// and `hpl_event_sign.py pair` → `secret_sha256[:8]` (docs/m5-glasses.md §3, rayban-vlm-poc docs/HPL_BRIDGE.md).
+public enum PairingCode {
+    public static func of(_ secret: [UInt8]) -> String { String(SHA256Digest.hex(Data(secret)).prefix(8)) }
+    /// "ae21 6c2e": grouped for reading aloud / comparing at a glance.
+    public static func display(_ code: String) -> String { code.count == 8 ? "\(code.prefix(4)) \(code.suffix(4))" : code }
 }
 
 /// User-controlled bridge state (§8.4): pause toggle, photo policy, pairings, last-event indicator.

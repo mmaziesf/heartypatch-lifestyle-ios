@@ -146,6 +146,12 @@ public final class MealsModel {
 
     public func finishPairing() { newPairing = nil }
 
+    /// "ae21 6c2e" for a pairing row; compare with the code Glance shows after it pairs.
+    public func codeText(for info: PairingInfo) -> String? {
+        guard let services else { return nil }
+        return PairingManager(repository: services.repository, secrets: services.secrets).code(for: info).map(PairingCode.display)
+    }
+
     public func revoke(_ id: String) {
         guard let services else { return }
         do { try PairingManager(repository: services.repository, secrets: services.secrets).revoke(id: id) } catch { notice = "Could not remove the pairing." }

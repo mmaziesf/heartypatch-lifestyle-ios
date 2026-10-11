@@ -44,3 +44,11 @@ import Testing
         #expect(p.items == [MealItem(name: "salad", kcalEst: 470)])
     }
 }
+
+@Suite struct PairingCodeTests {
+    /// Same value Glance shows for the fixture pairing (rayban-vlm-poc docs/HPL_BRIDGE.md) and hpl_event_sign.py prints.
+    @Test func matchesGlanceFingerprint() {
+        #expect(PairingCode.of(Array(1...32)) == "ae216c2e")
+        #expect(PairingCode.display("ae216c2e") == "ae21 6c2e")
+    }
+}

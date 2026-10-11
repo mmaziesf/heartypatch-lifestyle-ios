@@ -192,21 +192,30 @@ struct GlassesSettingsSection: View {
                 LabeledContent("Status", value: meals.state.paused ? "Paused" : meals.lastEventText)
                 LabeledContent("Photos", value: "Off (not imported in this version)")
                 ForEach(meals.state.pairings) { p in
-                    LabeledContent(p.label, value: "Paired \(p.createdAt.formatted(date: .abbreviated, time: .omitted))")
-                        .swipeActions { Button("Remove", role: .destructive) { meals.revoke(p.id) } }
+                    LabeledContent {
+                        VStack(alignment: .trailing) {
+                            if let code = meals.codeText(for: p) { Text("Code \(code)").font(.body.monospaced()) }
+                            Text("Paired \(p.createdAt.formatted(date: .abbreviated, time: .omitted))").font(.caption)
+                        }
+                    } label: { Text(p.label) }
+                    .swipeActions { Button("Remove", role: .destructive) { meals.revoke(p.id) } }
+                }
+                if !meals.state.pairings.isEmpty {
+                    Text("Glance shows the same code after pairing. If the codes differ, remove the pairing and pair again.").font(.caption)
                 }
                 TextField("Companion name (e.g. Glance)", text: $label)
                 Button("Pair a companion") { meals.pair(label: label); label = "" }
             }
         }
         .sheet(isPresented: Binding(get: { meals.newPairing != nil }, set: { if !$0 { meals.finishPairing() } })) {
-            if let p = meals.newPairing { NavigationStack { PairingSheet(uri: p.uri, onDone: { meals.finishPairing() }) } }
+            if let p = meals.newPairing { NavigationStack { PairingSheet(uri: p.uri, code: p.code, onDone: { meals.finishPairing() }) } }
         }
     }
 }
 
 struct PairingSheet: View {
     let uri: String
+    let code: String
     let onDone: @MainActor () -> Void
 
     var body: some View {
@@ -216,6 +225,8 @@ struct PairingSheet: View {
                 Image(decorative: image, scale: 1).interpolation(.none).resizable().scaledToFit().frame(maxWidth: 260).frame(maxWidth: .infinity)
             }
             ShareLink(item: uri) { Label("Share pairing link", systemImage: "square.and.arrow.up") }
+            LabeledContent("Pairing code") { Text(PairingCode.display(code)).font(.title3.monospaced().bold()) }
+            Text("After pairing, Glance shows a code. It must match this one.").font(.caption)
             Text("Treat it like a password. It's shown only now; to pair again later, create a new pairing.").font(.caption)
             Spacer()
         }

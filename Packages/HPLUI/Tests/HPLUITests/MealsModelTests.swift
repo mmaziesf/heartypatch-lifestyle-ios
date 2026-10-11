@@ -70,6 +70,8 @@ private func signed(_ bodies: [String], at: Date = noon) throws -> Data {
         let p = try #require(m.newPairing)
         #expect(m.state.pairings.map(\.label) == ["Glance"] && PairingPayload(uri: p.uri) == p)
         #expect(try secrets.secret(for: p.id) == p.secret)
+        #expect(m.state.pairings.first?.code == PairingCode.of(p.secret))
+        #expect(m.codeText(for: m.state.pairings[0]) == PairingCode.display(PairingCode.of(p.secret)))
         m.finishPairing()
         #expect(m.newPairing == nil)
 

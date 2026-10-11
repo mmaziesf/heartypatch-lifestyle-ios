@@ -68,6 +68,7 @@ Verified lines are applied in `occurred_at` order, so out-of-order session event
 - Settings › Glasses meals › Pair a companion creates a 16-char id and a 32-byte secret from the system CSPRNG.
 - It shows them once as a QR code and a share link: `hplpair://v1?id=<id>&k=<base64url secret>`.
 - The secret is stored only in the Keychain (`KeychainPairingSecretStore`: this-device-only, after-first-unlock, not synced). Pairing metadata (label, date) goes in the store.
+- **Pairing code:** the first 8 lowercase hex characters of SHA-256(secret), shown as `ae21 6c2e`. It appears in the pairing sheet and on each pairing row in Settings, and matches Glance's `HplPairing.fingerprint()` and `hpl_event_sign.py pair` → `secret_sha256[:8]`. Matching codes mean both sides hold the same key. The fixture pairing's code is `ae216c2e`. The code is stored with the pairing metadata; it isn't secret (32 bits of a hash). Older pairings recompute it from the Keychain.
 - "Remove" (swipe) deletes both. Later files from that companion are rejected as "not from a paired companion".
 - Producer side: scan the QR, or paste the link; store the id and secret in Android Keystore / iOS Keychain.
 

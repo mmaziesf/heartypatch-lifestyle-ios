@@ -19,6 +19,8 @@ public struct PairingPayload: Sendable, Equatable {
     }
 
     public var uri: String { "hplpair://v1?id=\(id)&k=\(Base64URL.encode(secret))" }
+    /// 8-char code Glance shows after pairing; matching codes = same secret.
+    public var code: String { PairingCode.of(secret) }
 
     public init?(uri: String) {
         guard let c = URLComponents(string: uri), c.scheme == "hplpair", c.host == "v1",
@@ -102,9 +104,14 @@ public struct PairingManager: Sendable {
         try secrets.setSecret(payload.secret, for: payload.id)
         var state = try repository.bridgeState()
         state.pairings.removeAll { $0.id == payload.id }
-        state.pairings.append(PairingInfo(id: payload.id, label: String(label.prefix(40)), createdAt: now))
+        state.pairings.append(PairingInfo(id: payload.id, label: String(label.prefix(40)), createdAt: now, code: payload.code))
         try repository.save(state)
         return payload
+    }
+
+    /// The pairing's code, from metadata or (older pairings) recomputed from the Keychain secret.
+    public func code(for info: PairingInfo) -> String? {
+        info.code ?? (try? secrets.secret(for: info.id)).flatMap { $0.map(PairingCode.of) }
     }
 
     public func revoke(id: String) throws {
