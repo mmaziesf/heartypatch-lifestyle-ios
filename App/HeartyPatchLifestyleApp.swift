@@ -80,8 +80,9 @@ enum AppBootstrap {
             ])
             return AppModel(consents: store.consents, health: health, labs: LabServices(importer: importer, repository: store.labs),
                             insights: store.insights, meals: MealServices(repository: store.meals, secrets: secrets),
-                            // M6: the demo analyzer runs on this iPhone; no endpoint is configured, so nothing leaves the device.
-                            cloud: CloudServices(transport: DemoCloudTransport(), log: RecordStoreEgressLog(store: store.records)),
+                            // M6/M8: HTTPS to the endpoint in build settings (HPL_CLOUD_ENDPOINT + HPL_CLOUD_PINS) when both are set,
+                            // otherwise the on-device demo analyzer. Either way only after opt-in + preview (EgressGate).
+                            cloud: CloudServices(transport: CloudTransports.fromMainBundle(), log: RecordStoreEgressLog(store: store.records)),
                             reminders: reminders, prefs: prefs, wiper: wiper,
                             pipeline: DailyPipeline(engine: InsightEngines.preferred()))
         } catch {

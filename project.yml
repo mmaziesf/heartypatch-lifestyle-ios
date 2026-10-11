@@ -14,6 +14,10 @@ settings:
     MARKETING_VERSION: "0.7.0"     # bump CURRENT_PROJECT_VERSION for every TestFlight upload
     CURRENT_PROJECT_VERSION: "1"
     DEVELOPMENT_TEAM: ""          # set your team locally to run on a device
+    # Cloud analysis endpoint (docs/m8-cloud-endpoint.md). Empty = on-device demo analyzer, nothing leaves the device.
+    # HPL_CLOUD_PINS: comma-separated base64 pins from `hpl-cloud pin fullchain.pem` (current + backup key).
+    HPL_CLOUD_ENDPOINT: ""
+    HPL_CLOUD_PINS: ""
 packages:
   HPLCore: { path: Packages/HPLCore }
   HPLStore: { path: Packages/HPLStore }
@@ -59,6 +63,8 @@ targets:
         UILaunchScreen: {}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         ITSAppUsesNonExemptEncryption: false
+        HPLCloudEndpoint: $(HPL_CLOUD_ENDPOINT)
+        HPLCloudPublicKeyPins: $(HPL_CLOUD_PINS)
         # Architecture §9.3. Read-only: no NSHealthUpdateUsageDescription until write-back ships (M5 review).
         NSHealthShareUsageDescription: "Read sleep, heart, activity, body, and workout data to build daily summaries on your device. Only per-day totals are stored, and nothing leaves your iPhone."
         UIRequiredDeviceCapabilities: [healthkit]

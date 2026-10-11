@@ -64,14 +64,14 @@ The consent copy says plainly that coarsened data could still potentially be lin
 | Preview == sent, byte for byte | `EgressGateTests.previewEqualsSentBytesAndResultsMapBack` (transport records the body; SHA-256 matches). |
 | Revoking consent blocks the next job | `EgressGateTests.revokingConsentBlocksTheNextSend`, `CloudModelTests.revokingConsentBlocksTheNextJob`. |
 | Unreachable without opt-in | `EgressGateTests.unreachableWithoutConsent`, `CloudModelTests.offByDefaultAndUnreachableWithoutOptIn`. |
-| Endpoint logs contain no bodies | **Open**: no endpoint exists yet. The client sends no identity headers or cookies (`httpsTransportRequiresTLSAndPinsAndSendsNoIdentity`). |
+| Endpoint logs contain no bodies | Server in `server/` (M8, [`m8-cloud-endpoint.md`](m8-cloud-endpoint.md)): `TestLogsCarryNoRequestData`. The client sends no identity headers or cookies (`httpsTransportRequiresTLSAndPinsAndSendsNoIdentity`). Hosting-provider logs are a deploy item. |
 | Networking only in one file | `scripts/check_egress_boundary.sh` (CI spec job). |
 | Schemas | `scripts/validate_specs.py` validates `Fixtures/cloud/*.synthetic.json` (golden, regenerated with `HPL_WRITE_GOLDEN=1 swift test` in `Packages/HPLCloud`) and rejects `Fixtures/invalid/cloud-*.json`. |
 
 ## Deviations
 
 - **Payload cap is 16 KB, not 8 KB.** 28 daily rows with meals don't fit in 8 KB. Responses are capped at 64 KB.
-- **No endpoint, no proxy, no App Attest.** The demo analyzer stands in; `EgressRecord.leftDevice` is `false` for every job in this version.
+- **No endpoint in default builds.** The demo analyzer stands in; `EgressRecord.leftDevice` is `false`. M8 adds the server (`server/`) and build-setting configuration (`HPL_CLOUD_ENDPOINT`, `HPL_CLOUD_PINS`); App Attest has a server-side assertion verifier but no registration yet. See [`m8-cloud-endpoint.md`](m8-cloud-endpoint.md).
 - Public-key pinning in `HTTPSCloudTransport` is unit-tested for configuration only, not against a live server.
 - Cloud results are shown in the analysis screen and kept in the egress history; they are not yet merged into the Insights ledger (feedback, experiments).
 - Rare labs are always dropped; there is no "include rare labs" toggle.

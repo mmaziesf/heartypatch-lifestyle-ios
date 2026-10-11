@@ -11,3 +11,5 @@ Packages/*/Package.resolved
 xcuserdata/
 __pycache__/
 Config/HeartyPatchLifestyle.entitlements
+server/hpl-cloud
+server/internal/*/testdata/fuzz/

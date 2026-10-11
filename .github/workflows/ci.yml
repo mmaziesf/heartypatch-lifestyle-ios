@@ -35,6 +35,34 @@ jobs:
       - name: App Store copy + privacy manifest (wellness framing, §13)
         run: python3 scripts/check_store_copy.py
 
+  server:
+    name: Cloud endpoint (Go, server/)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: server/go.mod
+          cache: false
+      - name: gofmt
+        run: test -z "$(gofmt -l .)" || { gofmt -l .; exit 1; }
+      - run: go vet ./...
+      - name: No stray logging in handlers (only the outcome-only access log)
+        run: |
+          if grep -rnE 'fmt\.Print|log\.Print|log\.Fatal|slog\.(Info|Warn|Error|Debug)\(|\.Header\.Get\("(User-Agent|Cookie|Authorization)' internal --include=*.go | grep -v _test.go; then
+            echo "Logging or identity-header reads in server/internal (only server.go's access log is allowed)"; exit 1
+          fi
+      - name: Tests (schema parity with Spec/ + Fixtures/, golden insights == iOS demo analyzer, log hygiene, pinning, App Attest)
+        run: go test -race -count=1 ./...
+      - name: Fuzz the payload decoder and the App Attest CBOR reader (short)
+        run: |
+          go test ./internal/api -run '^$' -fuzz FuzzDecode -fuzztime 20s
+          go test ./internal/attest -run '^$' -fuzz FuzzDecodeAssertion -fuzztime 10s
+
   lint:
     name: SwiftLint
     runs-on: ubuntu-latest
