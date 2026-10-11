@@ -2,7 +2,7 @@ import Foundation
 import HPLCore
 
 /// M0 consent store: append-only JSON in UserDefaults. Holds no health data.
-/// M1 moves consents into the SwiftData store (NSFileProtectionComplete) behind the same protocol.
+/// Since M1 the app uses `SwiftDataStore.consents`; this type remains as the migration source and for Linux tests.
 public final class UserDefaultsConsentRepository: ConsentRepository, @unchecked Sendable {
     private let defaults: UserDefaults
     private let key: String
@@ -23,6 +23,12 @@ public final class UserDefaultsConsentRepository: ConsentRepository, @unchecked 
         var list = try load()
         if let i = list.firstIndex(where: { $0.id == consent.id }) { list[i] = consent } else { list.append(consent) }
         defaults.set(try HPLJSON.encoder.encode(list), forKey: key)
+    }
+
+    /// Clears the legacy key after migration.
+    public func removeAll() {
+        lock.lock(); defer { lock.unlock() }
+        defaults.removeObject(forKey: key)
     }
 
     private func load() throws -> [Consent] {

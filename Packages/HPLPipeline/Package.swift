@@ -8,9 +8,10 @@ let package = Package(
     dependencies: [
         .package(path: "../HPLCore"),
         .package(path: "../HPLInference"),
+        .package(path: "../HPLStore"),
     ],
     targets: [
         .target(name: "HPLPipeline", dependencies: ["HPLCore", "HPLInference"]),
-        .testTarget(name: "HPLPipelineTests", dependencies: ["HPLPipeline", "HPLCore", "HPLInference"]),
+        .testTarget(name: "HPLPipelineTests", dependencies: ["HPLPipeline", "HPLCore", "HPLInference", "HPLStore"]),
     ]
 )

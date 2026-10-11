@@ -1,11 +1,11 @@
-# HeartyPatch Lifestyle (M0)
+# HeartyPatch Lifestyle (M1 in progress)
 
 Local-first iOS app: Apple Watch / HealthKit + your confirmed blood work (+ Ray-Ban meal logs later) → an on-device daily summary → coaching-style lifestyle notes and self-experiments.
 
 > **Not medical advice.** HeartyPatch Lifestyle provides general wellness information and self-experiment ideas based on data you choose to share with it. It is not a medical device and does not diagnose, treat, cure, or prevent any disease or provide medical advice. Lab values are shown as printed on your report; we do not interpret them. Talk to a qualified clinician about any health concern or before changing medications, diet, or exercise in significant ways. If you think you may have a medical emergency, call your local emergency number.
 
 - Architecture: [`docs/architecture.md`](docs/architecture.md) (one-page: [`docs/architecture-SUMMARY.md`](docs/architecture-SUMMARY.md))
-- Milestone: **M0**. Skeleton, contracts, disclaimer gate, rules-only path. No HealthKit yet.
+- Milestone: **M0 done; M1 (HealthKit daily aggregates) code landed, awaiting on-device validation.** See [`docs/m1-healthkit.md`](docs/m1-healthkit.md).
 
 ## What M0 does
 
@@ -18,7 +18,7 @@ Local-first iOS app: Apple Watch / HealthKit + your confirmed blood work (+ Ray-
 | Rules-only engine: fixture → rules → engine → output guard → Today | `HPLPipeline`, `HPLInference` |
 | No PHI in logs (CI grep) + SwiftLint `no_print` | `scripts/check_no_phi_logging.sh`, `.swiftlint.yml` |
 
-**Data honesty:** M0 has no HealthKit. Today runs on `Fixtures/daily_summary/d0.synthetic.json` (`"provenance": "synthetic_fixture"`), and the screen shows a **SYNTHETIC FIXTURE** banner. Every valid fixture filename must contain `.synthetic.` (CI enforces this).
+**Data honesty:** Without Apple Health connected (or on a device without HealthKit), Today runs on `Fixtures/daily_summary/d0.synthetic.json` (`"provenance": "synthetic_fixture"`), and the screen shows a **SYNTHETIC FIXTURE** banner. Every valid fixture filename must contain `.synthetic.` (CI enforces this).
 
 ## Open in Xcode
 
@@ -53,11 +53,11 @@ The SwiftUI views (`HPLUI/Views.swift`) compile only on Apple platforms. Everyth
 App/                 @main SwiftUI entry (target defined in project.yml)
 Packages/
   HPLCore            DailySummaryV1, HPLEventV1, JSONValue, Recommendation, Consent, Disclaimer, labeled fixtures
-  HPLStore           ConsentRepository impls (M0: UserDefaults; M1: SwiftData, FileProtection complete)
-  HPLHealth          HealthKit boundary (M1). Stub, no fake samples
+  HPLStore           SwiftData store (aggregates, sync anchors, consents; FileProtection complete) + in-memory impls
+  HPLHealth          HealthKit read: auth, statistics/anchored/observer queries, sleep + HRV aggregators, HealthSyncEngine
   HPLIngest          Lab OCR/parse/confirm (M2). Stub
   HPLInference       InsightEngine protocol, RulesOnlyEngine, OutputGuard
-  HPLPipeline        RulesEngine (3 rules), DailyPipeline with fallback to rules-only
+  HPLPipeline        SummaryBuilder (aggregates -> DailySummary v1, 28d baselines), RulesEngine (3 rules), DailyPipeline
   HPLBridge          EventInbox: decode, idempotency, unknown-type ignore (HMAC in M5)
   HPLCloud           EgressGate, hard-disabled until M6
   HPLUI              AppModel + SwiftUI shell
@@ -73,4 +73,5 @@ scripts/             test/validate/CI helpers
 - Null and absent are treated as equivalent for optional fields; Swift omits nil on encode.
 - The project uses XcodeGen (`project.yml`) instead of a committed `.xcworkspace`/`.pbxproj`, which keeps diffs reviewable and makes fresh clones reproducible in CI.
 - `InsightEngine.extractLabRows` is deferred to M2.
-- M0 consent storage is UserDefaults, which holds only the disclaimer acknowledgement and no health data. It moves to SwiftData in M1.
+- M0 consent storage was UserDefaults (disclaimer acknowledgement only). Since M1, consents live in the SwiftData store; the app migrates the old key once on launch.
+- M1 deviations and on-device checks: [`docs/m1-healthkit.md`](docs/m1-healthkit.md).

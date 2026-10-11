@@ -9,6 +9,8 @@ public struct RootView: View {
     public var body: some View {
         if model.needsDisclaimer {
             DisclaimerOnboardingView { model.acknowledgeDisclaimer() }
+        } else if model.needsHealthPrompt {
+            HealthConnectView(onConnect: { Task { await model.connectHealth() } }, onSkip: { model.dismissHealthPrompt() })
         } else {
             MainTabView(model: model)
         }
@@ -34,6 +36,28 @@ struct DisclaimerOnboardingView: View {
     }
 }
 
+struct HealthConnectView: View {
+    let onConnect: () -> Void
+    let onSkip: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            Label("Connect Apple Health", systemImage: "heart.text.square").font(.title.bold())
+            Text("HP Lifestyle reads sleep, heart, activity, body, and workout data to build daily summaries on this iPhone.")
+            VStack(alignment: .leading, spacing: 8) {
+                Label("Read-only. Nothing is written to Health.", systemImage: "eye")
+                Label("Only per-day totals are stored, in an encrypted on-device store.", systemImage: "lock")
+                Label("Nothing leaves this device.", systemImage: "iphone")
+            }
+            .font(.subheadline)
+            Spacer()
+            Button("Connect Apple Health", action: onConnect).buttonStyle(.borderedProminent).frame(maxWidth: .infinity)
+            Button("Not now", action: onSkip).frame(maxWidth: .infinity)
+        }
+        .padding()
+    }
+}
+
 struct MainTabView: View {
     var model: AppModel
 
@@ -49,27 +73,99 @@ struct MainTabView: View {
 }
 
 struct TodayView: View {
+    static let noDataHelp = "Apple Health doesn't tell apps whether access was denied. "
+        + "Check Settings › Health › Data Access & Devices › HP Lifestyle, and make sure your Apple Watch has synced."
     var model: AppModel
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
         List {
-            if model.summary?.provenance == .syntheticFixture {
+            HealthStatusSection(model: model)
+            switch model.todaySource {
+            case .syntheticFixture:
                 Section {
                     Label(Disclaimer.syntheticDataBanner, systemImage: "flask")
                         .font(.footnote.bold())
                         .foregroundStyle(.orange)
                 }
-            }
-            Section("Today's notes") {
-                if model.recommendations.isEmpty {
-                    Text("Nothing notable today.").foregroundStyle(.secondary)
+            case .noData:
+                Section {
+                    ContentUnavailableView {
+                        Label("No data (or access not granted)", systemImage: "heart.slash")
+                    } description: {
+                        Text(Self.noDataHelp)
+                    } actions: {
+                        Button("Open Health") { if let url = URL(string: "x-apple-health://") { openURL(url) } }
+                    }
                 }
-                ForEach(model.recommendations) { RecommendationRow(rec: $0) }
+            case .device:
+                EmptyView()
+            }
+            if model.todaySource != .noData {
+                Section(model.todaySource == .device ? "Today vs your 28-day typical" : "Example metrics") {
+                    ForEach(model.todayMetrics) { MetricRowView(row: $0) }
+                }
+                Section("Today's notes") {
+                    if model.recommendations.isEmpty {
+                        Text("Nothing notable today.").foregroundStyle(.secondary)
+                    }
+                    ForEach(model.recommendations) { RecommendationRow(rec: $0) }
+                }
             }
             Section { Text(Disclaimer.footer).font(.caption).foregroundStyle(.secondary) }
         }
         .navigationTitle("Today")
+        .refreshable { await model.refresh() }
         .task { await model.loadToday() }
+    }
+}
+
+struct HealthStatusSection: View {
+    var model: AppModel
+
+    var body: some View {
+        switch model.healthStatus {
+        case .notConnected:
+            Section {
+                Button { Task { await model.connectHealth() } } label: {
+                    Label("Connect Apple Health to see your own data", systemImage: "heart.text.square")
+                }
+            }
+        case .syncing(let progress):
+            Section {
+                if let progress {
+                    ProgressView("Reading the last 90 days from Apple Health…", value: progress)
+                } else {
+                    ProgressView("Updating from Apple Health…")
+                }
+            }
+        case .ready(let last?):
+            Section { Text("Updated \(last.formatted(date: .omitted, time: .shortened))").font(.caption).foregroundStyle(.secondary) }
+        case .failed:
+            Section { Label(model.errorMessage ?? "Apple Health sync failed.", systemImage: "exclamationmark.triangle").font(.footnote) }
+        case .ready(nil), .unavailable:
+            EmptyView()
+        }
+    }
+}
+
+struct MetricRowView: View {
+    let row: MetricRow
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(row.title)
+                Spacer()
+                Text(row.value ?? "No data").bold().foregroundStyle(row.value == nil ? .secondary : .primary)
+            }
+            if let typical = row.typical {
+                Text("Typical: \(typical)").font(.caption).foregroundStyle(.secondary)
+            }
+            if let note = row.note {
+                Text(note).font(.caption2).foregroundStyle(.secondary)
+            }
+        }
     }
 }
 
@@ -110,11 +206,26 @@ struct SettingsView: View {
             }
             Section("Engine") { LabeledContent("Insights", value: "Rules only (\(model.engineName))") }
             Section("Data") {
-                LabeledContent("Apple Health", value: "Not connected (M1)")
+                LabeledContent("Apple Health", value: healthLabel)
+                if model.healthStatus == .notConnected {
+                    Button("Connect Apple Health") { Task { await model.connectHealth() } }
+                }
+                LabeledContent("Stored", value: "Per-day totals only, on this device")
                 LabeledContent("Cloud analysis", value: "Off")
             }
         }
         .navigationTitle("Settings")
+    }
+
+    private var healthLabel: String {
+        switch model.healthStatus {
+        case .unavailable: "Not available on this device"
+        case .notConnected: "Not connected"
+        case .syncing: "Syncing…"
+        case .ready(let last?): "Connected · \(last.formatted(date: .abbreviated, time: .shortened))"
+        case .ready(nil): "Connected"
+        case .failed: "Sync failed"
+        }
     }
 }
 

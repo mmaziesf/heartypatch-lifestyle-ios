@@ -8,11 +8,12 @@ let package = Package(
     dependencies: [
         .package(path: "../HPLCore"),
         .package(path: "../HPLStore"),
+        .package(path: "../HPLHealth"),
         .package(path: "../HPLInference"),
         .package(path: "../HPLPipeline"),
     ],
     targets: [
-        .target(name: "HPLUI", dependencies: ["HPLCore", "HPLStore", "HPLInference", "HPLPipeline"]),
-        .testTarget(name: "HPLUITests", dependencies: ["HPLUI", "HPLCore", "HPLStore", "HPLInference", "HPLPipeline"]),
+        .target(name: "HPLUI", dependencies: ["HPLCore", "HPLStore", "HPLHealth", "HPLInference", "HPLPipeline"]),
+        .testTarget(name: "HPLUITests", dependencies: ["HPLUI", "HPLCore", "HPLStore", "HPLHealth", "HPLInference", "HPLPipeline"]),
     ]
 )

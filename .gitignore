@@ -10,3 +10,4 @@ Packages/*/.swiftpm/
 Packages/*/Package.resolved
 xcuserdata/
 __pycache__/
+Config/HeartyPatchLifestyle.entitlements

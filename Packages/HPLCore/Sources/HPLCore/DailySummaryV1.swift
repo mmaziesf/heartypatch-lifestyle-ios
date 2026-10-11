@@ -16,6 +16,9 @@ public struct DailySummaryV1: Codable, Sendable, Equatable {
         public struct Baseline: Codable, Sendable, Equatable {
             public var totalMinMedian: Double?
             public var deepMinMedian: Double?
+            public init(totalMinMedian: Double? = nil, deepMinMedian: Double? = nil) {
+                self.totalMinMedian = totalMinMedian; self.deepMinMedian = deepMinMedian
+            }
             enum CodingKeys: String, CodingKey { case totalMinMedian = "total_min_median", deepMinMedian = "deep_min_median" }
         }
         public var totalMin: Int?
@@ -25,6 +28,11 @@ public struct DailySummaryV1: Codable, Sendable, Equatable {
         public var bedLocal: String?
         public var wakeLocal: String?
         public var baseline28d: Baseline?
+        public init(totalMin: Int? = nil, deepMin: Int? = nil, remMin: Int? = nil, awakeMin: Int? = nil,
+                    bedLocal: String? = nil, wakeLocal: String? = nil, baseline28d: Baseline? = nil) {
+            self.totalMin = totalMin; self.deepMin = deepMin; self.remMin = remMin; self.awakeMin = awakeMin
+            self.bedLocal = bedLocal; self.wakeLocal = wakeLocal; self.baseline28d = baseline28d
+        }
         enum CodingKeys: String, CodingKey {
             case totalMin = "total_min", deepMin = "deep_min", remMin = "rem_min", awakeMin = "awake_min"
             case bedLocal = "bed_local", wakeLocal = "wake_local", baseline28d = "baseline_28d"
@@ -37,6 +45,11 @@ public struct DailySummaryV1: Codable, Sendable, Equatable {
         public var hrvSDNNOvernightMedian: Double?
         public var hrv28dP10: Double?
         public var hrv28dMedian: Double?
+        public init(restingHR: Double? = nil, restingHR28dMedian: Double? = nil, hrvSDNNOvernightMedian: Double? = nil,
+                    hrv28dP10: Double? = nil, hrv28dMedian: Double? = nil) {
+            self.restingHR = restingHR; self.restingHR28dMedian = restingHR28dMedian
+            self.hrvSDNNOvernightMedian = hrvSDNNOvernightMedian; self.hrv28dP10 = hrv28dP10; self.hrv28dMedian = hrv28dMedian
+        }
         enum CodingKeys: String, CodingKey {
             case restingHR = "resting_hr", restingHR28dMedian = "resting_hr_28d_median"
             case hrvSDNNOvernightMedian = "hrv_sdnn_ms_overnight_median"
@@ -50,6 +63,10 @@ public struct DailySummaryV1: Codable, Sendable, Equatable {
         public var activeKcal: Double?
         public var exerciseMin: Int?
         public var standHours: Int?
+        public init(steps: Int? = nil, steps28dMedian: Double? = nil, activeKcal: Double? = nil, exerciseMin: Int? = nil, standHours: Int? = nil) {
+            self.steps = steps; self.steps28dMedian = steps28dMedian; self.activeKcal = activeKcal
+            self.exerciseMin = exerciseMin; self.standHours = standHours
+        }
         enum CodingKeys: String, CodingKey {
             case steps, steps28dMedian = "steps_28d_median", activeKcal = "active_kcal"
             case exerciseMin = "exercise_min", standHours = "stand_hours"
@@ -61,6 +78,9 @@ public struct DailySummaryV1: Codable, Sendable, Equatable {
         public var durationMin: Int
         public var avgHR: Double?
         public var zoneMinutes: [Int]?
+        public init(type: String, durationMin: Int, avgHR: Double? = nil, zoneMinutes: [Int]? = nil) {
+            self.type = type; self.durationMin = durationMin; self.avgHR = avgHR; self.zoneMinutes = zoneMinutes
+        }
         enum CodingKeys: String, CodingKey { case type, durationMin = "duration_min", avgHR = "avg_hr", zoneMinutes = "zone_minutes" }
     }
 
@@ -110,6 +130,16 @@ public struct DailySummaryV1: Codable, Sendable, Equatable {
         case schema, provenance, day, dayOfWeek = "day_of_week", profile, sleep, heart, activity
         case workouts, meals, labsRecent = "labs_recent", ruleHits = "rule_hits"
         case activeExperiments = "active_experiments", completeness
+    }
+
+    /// Builds a device summary. Meals, labs, and experiments arrive in later milestones (empty until then, never invented).
+    public init(provenance: Provenance, day: String, dayOfWeek: String, profile: Profile? = nil, sleep: Sleep? = nil,
+                heart: Heart? = nil, activity: Activity? = nil, workouts: [Workout] = [], meals: [Meal] = [],
+                labsRecent: [LabRecent] = [], ruleHits: [String] = [], activeExperiments: [ActiveExperiment] = [], completeness: Double) {
+        schema = Self.schemaID
+        self.provenance = provenance; self.day = day; self.dayOfWeek = dayOfWeek; self.profile = profile
+        self.sleep = sleep; self.heart = heart; self.activity = activity; self.workouts = workouts; self.meals = meals
+        self.labsRecent = labsRecent; self.ruleHits = ruleHits; self.activeExperiments = activeExperiments; self.completeness = completeness
     }
 
     public init(from decoder: Decoder) throws {

@@ -30,3 +30,8 @@ public extension ConsentRepository {
         try all().last { $0.scope == scope && $0.version == version && $0.isActive }
     }
 }
+
+/// Copy versions for per-source consents. Connecting Apple Health records `Consent(scope: .healthkit, version: HealthConsent.version)`.
+public enum HealthConsent {
+    public static let version = "healthkit-v1"
+}

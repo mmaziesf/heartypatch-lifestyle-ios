@@ -10,5 +10,5 @@ public enum Disclaimer {
     significant ways. If you think you may have a medical emergency, call your local emergency number.
     """
     public static let footer = "General wellness information, not medical advice."
-    public static let syntheticDataBanner = "SYNTHETIC FIXTURE: example data, not yours. HealthKit arrives in M1."
+    public static let syntheticDataBanner = "SYNTHETIC FIXTURE: example data, not yours. Connect Apple Health to see your own."
 }

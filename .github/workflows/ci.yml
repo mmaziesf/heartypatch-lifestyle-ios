@@ -19,8 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.13"
       - run: pip install "jsonschema>=4.23"
@@ -37,7 +37,7 @@ jobs:
     timeout-minutes: 10
     container: ghcr.io/realm/swiftlint:0.65.1
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: swiftlint lint --strict --reporter github-actions-logging
 
   linux-packages:
@@ -46,8 +46,8 @@ jobs:
     timeout-minutes: 30
     container: swift:6.2
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/cache@v4
+      - uses: actions/checkout@v7
+      - uses: actions/cache@v6
         with:
           path: Packages/*/.build
           key: spm-linux-${{ hashFiles('Packages/*/Package.swift', 'Packages/*/Package.resolved') }}
@@ -58,12 +58,12 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: latest-stable
       - run: swift --version
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: Packages/*/.build
           key: spm-macos-${{ runner.os }}-${{ hashFiles('Packages/*/Package.swift', 'Packages/*/Package.resolved') }}
@@ -75,7 +75,7 @@ jobs:
     timeout-minutes: 45
     needs: [spec]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: latest-stable
