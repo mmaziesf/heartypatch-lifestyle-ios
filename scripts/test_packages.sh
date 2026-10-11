@@ -6,7 +6,10 @@ cd "$(dirname "$0")/.."
 ORDER=(HPLCore HPLStore HPLHealth HPLIngest HPLInference HPLPipeline HPLBridge HPLCloud HPLUI)
 for p in "${ORDER[@]}"; do
   echo "::group::swift test $p"
-  swift test --package-path "Packages/$p" "$@"
+  extra=()
+  # SwiftData segfaults when many stores are opened/used in parallel tests (macOS CI run 38129994082); keep HPLStore serial.
+  [[ "$p" == HPLStore ]] && extra=(--no-parallel)
+  swift test --package-path "Packages/$p" ${extra[@]+"${extra[@]}"} "$@"
   echo "::endgroup::"
 done
 echo "All ${#ORDER[@]} packages passed."
