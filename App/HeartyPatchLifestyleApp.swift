@@ -1,4 +1,5 @@
 import SwiftUI
+import HPLCore
 import HPLStore
 import HPLHealth
 import HPLIngest

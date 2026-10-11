@@ -34,6 +34,7 @@ targets:
       - path: App/PrivacyInfo.xcprivacy
         buildPhase: resources
     dependencies:
+      - package: HPLCore
       - package: HPLUI
       - package: HPLStore
       - package: HPLHealth
