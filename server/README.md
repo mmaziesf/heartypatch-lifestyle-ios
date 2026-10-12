@@ -6,7 +6,9 @@ Stateless HTTPS endpoint for HP Lifestyle's opt-in anonymized cloud analysis. Go
 
 ```bash
 go test -race ./...                       # uses ../Spec-shaped fixtures in ../Fixtures
-go run ./cmd/hpl-cloud serve              # needs HPL_TLS_CERT + HPL_TLS_KEY (or HPL_PLAINTEXT=1 for local dev)
+go run ./cmd/hpl-cloud serve              # needs HPL_TLS_CERT + HPL_TLS_KEY files, or inline HPL_TLS_CERT_PEM + HPL_TLS_KEY_PEM (or HPL_PLAINTEXT=1 for local dev)
 ```
+
+Deploy on Fly.io (TLS passthrough, dedicated IPv4): [`fly.toml`](fly.toml) + [`../docs/deploy-fly.md`](../docs/deploy-fly.md).
 
 Design, contract, pinning, and deploy gaps: [`../docs/m8-cloud-endpoint.md`](../docs/m8-cloud-endpoint.md).

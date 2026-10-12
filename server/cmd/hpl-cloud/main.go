@@ -7,6 +7,8 @@
 //
 //	HPL_ADDR            listen address (default :8443)
 //	HPL_TLS_CERT/KEY    PEM files; when set, the server terminates TLS itself (TLS 1.3 only) — the pinned setup
+//	HPL_TLS_CERT_PEM/KEY_PEM  the same PEM, inline (for hosts that inject secrets as env vars, e.g. Fly.io;
+//	                    see docs/deploy-fly.md). Use either the file pair or the inline pair, not both.
 //	HPL_PLAINTEXT=1     allow plain HTTP (local dev or a TLS-passthrough sidecar only; refused without it)
 //	HPL_ATTEST          off (default) | app-attest
 //	HPL_APP_ID          TEAMID.com.hpl.lifestyle (app-attest)
@@ -15,6 +17,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -87,10 +90,12 @@ func serve() error {
 		ErrorLog:          server.SilentErrorLog(logger),
 		TLSConfig:         server.TLSConfig(),
 	}
-	cert, key := os.Getenv("HPL_TLS_CERT"), os.Getenv("HPL_TLS_KEY")
-	tlsOn := cert != "" && key != ""
+	tlsOn, err := configureTLS(srv.TLSConfig, os.Getenv)
+	if err != nil {
+		return err
+	}
 	if !tlsOn && os.Getenv("HPL_PLAINTEXT") != "1" {
-		return errors.New("set HPL_TLS_CERT and HPL_TLS_KEY (or HPL_PLAINTEXT=1 for local dev / TLS passthrough sidecar)")
+		return errors.New("set HPL_TLS_CERT and HPL_TLS_KEY, or HPL_TLS_CERT_PEM and HPL_TLS_KEY_PEM (or HPL_PLAINTEXT=1 for local dev / TLS passthrough sidecar)")
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
@@ -98,7 +103,7 @@ func serve() error {
 	go func() {
 		logger.Info("listening", slog.String("addr", addr), slog.Bool("tls", tlsOn), slog.String("attest", verifier.Mode()))
 		if tlsOn {
-			errc <- srv.ListenAndServeTLS(cert, key)
+			errc <- srv.ListenAndServeTLS("", "") // certificate already loaded into srv.TLSConfig
 		} else {
 			errc <- srv.ListenAndServe()
 		}
@@ -111,6 +116,39 @@ func serve() error {
 		defer cancel()
 		return srv.Shutdown(shutdown)
 	}
+}
+
+// configureTLS loads the serving certificate into c from either the file pair (HPL_TLS_CERT/HPL_TLS_KEY) or the
+// inline PEM pair (HPL_TLS_CERT_PEM/HPL_TLS_KEY_PEM). It reports false when neither is set, and refuses half pairs
+// or both sources at once so a misconfigured deploy fails loudly instead of silently picking one.
+func configureTLS(c *tls.Config, getenv func(string) string) (bool, error) {
+	certFile, keyFile := getenv("HPL_TLS_CERT"), getenv("HPL_TLS_KEY")
+	certPEM, keyPEM := getenv("HPL_TLS_CERT_PEM"), getenv("HPL_TLS_KEY_PEM")
+	files := certFile != "" || keyFile != ""
+	inline := certPEM != "" || keyPEM != ""
+	var pair tls.Certificate
+	var err error
+	switch {
+	case files && inline:
+		return false, errors.New("set either HPL_TLS_CERT/HPL_TLS_KEY or HPL_TLS_CERT_PEM/HPL_TLS_KEY_PEM, not both")
+	case files:
+		if certFile == "" || keyFile == "" {
+			return false, errors.New("HPL_TLS_CERT and HPL_TLS_KEY must be set together")
+		}
+		pair, err = tls.LoadX509KeyPair(certFile, keyFile)
+	case inline:
+		if certPEM == "" || keyPEM == "" {
+			return false, errors.New("HPL_TLS_CERT_PEM and HPL_TLS_KEY_PEM must be set together")
+		}
+		pair, err = tls.X509KeyPair([]byte(certPEM), []byte(keyPEM))
+	default:
+		return false, nil
+	}
+	if err != nil {
+		return false, fmt.Errorf("load TLS certificate: %w", err)
+	}
+	c.Certificates = []tls.Certificate{pair}
+	return true, nil
 }
 
 func verifierFromEnv() (attest.Verifier, error) {

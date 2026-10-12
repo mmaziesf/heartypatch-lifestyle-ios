@@ -95,7 +95,7 @@ curl --tlsv1.3 --cacert cert.pem https://localhost:8443/v1/analyze -H 'Content-T
 
 ## Deploy gaps (nothing is deployed)
 
-1. **Host + domain + public cert.** Needs a VM or container host with TCP passthrough (e.g. a small VPS, Fly.io with raw TCP/`tls` handler off, or a GCP/AWS VM with an L4 LB), a DNS name, Let's Encrypt with `--reuse-key`, and a backup key. `server/Dockerfile` builds a distroless nonroot image.
+1. **Host + domain + public cert.** Needs a VM or container host with TCP passthrough (e.g. a small VPS, Fly.io with raw TCP/`tls` handler off, or a GCP/AWS VM with an L4 LB), a DNS name, Let's Encrypt with `--reuse-key`, and a backup key. `server/Dockerfile` builds a distroless nonroot image. **Fly.io packaging now exists:** `server/fly.toml` + [`deploy-fly.md`](deploy-fly.md) (still not deployed).
 2. **Provider logs.** The process logs nothing identifying, but cloud LBs, firewalls, and VPC flow logs record client IPs by default. Turn those off or set short retention; document it in the privacy policy.
 3. **Real analysis model.** Only the rules analyzer exists. An LLM analyzer should run on the same host (e.g. a local open-weights model behind the `Analyzer` interface), not forward payloads to a third-party API, and keep the evidence-path contract.
 4. **App Attest registration + key store**, and the on-device `DCAppAttestService` provider (see trade-off above). Abuse control is otherwise only the global in-flight cap.
