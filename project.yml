@@ -7,6 +7,10 @@ options:
     iOS: "26.0"
   createIntermediateGroups: true
   groupSortPosition: top
+configs:
+  Debug: debug
+  Release: release
+  Cloud: release   # optional: Release-like build that talks to the live hpl-cloud endpoint
 settings:
   base:
     SWIFT_VERSION: "6.0"
@@ -18,6 +22,12 @@ settings:
     # HPL_CLOUD_PINS: comma-separated base64 pins from `hpl-cloud pin fullchain.pem` (current + backup key).
     HPL_CLOUD_ENDPOINT: ""
     HPL_CLOUD_PINS: ""
+  configs:
+    # Live endpoint (docs/deploy-fly.md). Debug/Release keep the empty defaults above = fully on-device.
+    # Pins = leaf + intermediate SPKI; renew certs with certbot --reuse-key so these stay valid.
+    Cloud:
+      HPL_CLOUD_ENDPOINT: "https://heartypatch.app/v1/analyze"
+      HPL_CLOUD_PINS: "JMvuYZpaHgO/IrCPe5RDm+Dq/fL/qeqSgjYQ6mpRSaU=,uVnyjs8i8IbTN0j/dhQYuoLYVYfhIa0bczhBt2SP4GQ="
 packages:
   HPLCore: { path: Packages/HPLCore }
   HPLStore: { path: Packages/HPLStore }
@@ -96,3 +106,11 @@ schemes:
         HeartyPatchLifestyle: all
     run:
       config: Debug
+  HeartyPatchLifestyle-Cloud:
+    build:
+      targets:
+        HeartyPatchLifestyle: all
+    run:
+      config: Cloud
+    archive:
+      config: Cloud

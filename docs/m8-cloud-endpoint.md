@@ -101,3 +101,13 @@ curl --tlsv1.3 --cacert cert.pem https://localhost:8443/v1/analyze -H 'Content-T
 4. **App Attest registration + key store**, and the on-device `DCAppAttestService` provider (see trade-off above). Abuse control is otherwise only the global in-flight cap.
 5. **Shipping copy before an endpoint build goes to anyone:** `PrivacyCopy` ("In this version it runs on this iPhone"), `Views.swift` ("Nothing leaves this device."), `App/PrivacyInfo.xcprivacy` (declare Health & Fitness data, not linked, not tracking), App Store privacy labels, `Metadata/app-store/en-US/description.txt` + `review_notes.txt`, and `docs/privacy-policy.md`. These are all still true for default builds, so they were not changed.
 6. **Live pin test from iOS.** The pin format is verified server-side (Go) and against Apple's documented `SecKeyCopyExternalRepresentation` layout; it has not been exercised by `HTTPSCloudTransport` against a deployed host yet.
+
+## Cloud build configuration
+
+`project.yml` defines a third Xcode configuration, **Cloud** (Release-based), and scheme
+**HeartyPatchLifestyle-Cloud**. Only Cloud sets `HPL_CLOUD_ENDPOINT=https://heartypatch.app/v1/analyze`
+and `HPL_CLOUD_PINS` (leaf + intermediate). Debug/Release keep both empty, so default builds stay on-device.
+
+Select it: `xcodegen generate`, then pick the **HeartyPatchLifestyle-Cloud** scheme in Xcode
+(or `xcodebuild -scheme HeartyPatchLifestyle-Cloud -configuration Cloud`).
+After a cert rotation without `--reuse-key`, regenerate pins with `hpl-cloud pin fullchain.pem` and update `project.yml`.

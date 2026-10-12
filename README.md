@@ -82,3 +82,7 @@ scripts/             test/validate/CI helpers
 - M5: signatures travel in an `hpl.signed_event.v1` wrapper per line of an `.hplevent` file, not HTTP headers. File inbox signatures may be up to 7 days old (5 min future skew); replay is stopped by persistent `event_id` receipts. New `meal.logged` event type (single-shot producers such as Glance), optional item `confidence`, optional `producer.processing`. No photos are imported at all. Details: [`docs/m5-glasses.md`](docs/m5-glasses.md).
 - M6: the cloud payload cap is 16 KB (not 8 KB) so 28 daily rows with meals fit. The app ships an on-device demo analyzer instead of an endpoint; no proxy or App Attest yet. Details: [`docs/m6-cloud.md`](docs/m6-cloud.md).
 - M7: the daily notification is a fixed-time, content-free reminder rather than "post when the pipeline finds something"; no backup-exclusion toggle yet (default: included, disclosed). Details: [`docs/m7-release.md`](docs/m7-release.md).
+
+## Cloud build (optional)
+
+Default Debug/Release builds are fully on-device. To use the live anonymized endpoint (`https://heartypatch.app`), select the **HeartyPatchLifestyle-Cloud** scheme (Cloud configuration). See `docs/m8-cloud-endpoint.md`.
